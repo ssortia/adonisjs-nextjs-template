@@ -39,8 +39,7 @@ services:
       dockerfile: apps/server/Dockerfile
       target: development
     ports:
-      - "3340:3333"
-      - "3334:3334"
+      - "3333:3333"
     volumes:
       - ./apps/server:/app/apps/server
       - /app/apps/server/node_modules
