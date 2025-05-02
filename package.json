@@ -2,13 +2,13 @@
   "name": "adonisjs-nextjs-template",
   "version": "1.0.0",
   "main": "index.js",
-  "packageManager": "npm@10.9.2",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start",
     "lint": "turbo run lint",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "ace": "node apps/server/ace"
   },
   "workspaces": [
     "apps/*",
