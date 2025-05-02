@@ -12,14 +12,18 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.3.1"
+    "@ant-design/cssinjs": "^1.23.0",
+    "@ant-design/icons": "5.1.4",
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "antd": "^5.24.9",
+    "next": "15.3.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19"
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5"
   }
 }

@@ -2,6 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { Card, Typography, Descriptions, List, Button, Space, Tag, Spin, Divider } from 'antd';
+import { 
+  UserOutlined, 
+  MailOutlined, 
+  IdcardOutlined, 
+  TeamOutlined,
+  KeyOutlined,
+  SettingOutlined,
+  UserSwitchOutlined,
+  LogoutOutlined
+} from '@ant-design/icons';
+
+const { Title, Text } = Typography;
 
 export default function UserProfile() {
   const { user, userRole, userPermissions, logout, isLoading } = useAuth();
@@ -12,65 +25,76 @@ export default function UserProfile() {
   }, [userRole]);
 
   if (isLoading) {
-    return <div className="p-4 bg-white shadow-md rounded-lg">Загрузка...</div>;
+    return <Card><Spin /></Card>;
   }
 
   if (!user) {
-    return <div className="p-4 bg-white shadow-md rounded-lg">Пользователь не авторизован</div>;
+    return (
+      <Card>
+        <Text type="secondary">Пользователь не авторизован</Text>
+      </Card>
+    );
   }
 
   return (
-    <div className="p-4 bg-white shadow-md rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Профиль пользователя</h2>
-
-      <div className="mb-4">
-        <p>
-          <strong>ID:</strong> {user.id}
-        </p>
-        <p>
-          <strong>Имя:</strong> {user.fullName || 'Не указано'}
-        </p>
-        <p>
-          <strong>Email:</strong> {user.email}
-        </p>
-        <p>
-          <strong>Роль:</strong> {userRole || 'Не назначена'}
-        </p>
-      </div>
+    <Card title={<Title level={4}>Профиль пользователя</Title>}>
+      <Descriptions column={1}>
+        <Descriptions.Item label={<Space><IdcardOutlined /> ID</Space>}>
+          {user.id}
+        </Descriptions.Item>
+        <Descriptions.Item label={<Space><UserOutlined /> Имя</Space>}>
+          {user.fullName || 'Не указано'}
+        </Descriptions.Item>
+        <Descriptions.Item label={<Space><MailOutlined /> Email</Space>}>
+          {user.email}
+        </Descriptions.Item>
+        <Descriptions.Item label={<Space><TeamOutlined /> Роль</Space>}>
+          <Tag color={isAdmin ? "gold" : "blue"}>{userRole || 'Не назначена'}</Tag>
+        </Descriptions.Item>
+      </Descriptions>
 
       {userPermissions.length > 0 && (
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Разрешения:</h3>
-          <ul className="list-disc list-inside">
-            {userPermissions.map((permission, index) => (
-              <li key={index} className="text-sm text-gray-700">
-                {permission}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <>
+          <Divider orientation="left">
+            <Space><KeyOutlined /> Разрешения</Space>
+          </Divider>
+          <List
+            size="small"
+            dataSource={userPermissions}
+            renderItem={(permission) => (
+              <List.Item>
+                <Tag color="processing">{permission}</Tag>
+              </List.Item>
+            )}
+          />
+        </>
       )}
 
       {isAdmin && (
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Административные функции:</h3>
-          <div className="flex flex-col space-y-2">
-            <a href="/admin/users" className="text-blue-500 hover:underline">
+        <>
+          <Divider orientation="left">
+            <Space><SettingOutlined /> Административные функции</Space>
+          </Divider>
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Button type="link" href="/admin/users" icon={<UserOutlined />}>
               Управление пользователями
-            </a>
-            <a href="/admin/roles" className="text-blue-500 hover:underline">
+            </Button>
+            <Button type="link" href="/admin/roles" icon={<UserSwitchOutlined />}>
               Управление ролями
-            </a>
-          </div>
-        </div>
+            </Button>
+          </Space>
+        </>
       )}
 
-      <button
+      <Divider />
+      
+      <Button 
+        danger
+        icon={<LogoutOutlined />}
         onClick={logout}
-        className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
       >
         Выйти
-      </button>
-    </div>
+      </Button>
+    </Card>
   );
 }

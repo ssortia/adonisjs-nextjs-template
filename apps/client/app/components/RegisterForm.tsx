@@ -1,9 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/hooks/useAuth';
+import { Form, Input, Button, Alert, Card, Typography, Divider, Space } from 'antd';
+import { 
+  UserOutlined, 
+  MailOutlined, 
+  LockOutlined, 
+  CheckCircleOutlined,
+  UserAddOutlined 
+} from '@ant-design/icons';
+
+const { Title, Text } = Typography;
 
 interface FormData {
   fullName: string;
@@ -12,92 +21,35 @@ interface FormData {
   passwordConfirmation: string;
 }
 
-interface FormErrors {
-  fullName?: string;
-  email?: string;
-  password?: string;
-  passwordConfirmation?: string;
-  general?: string;
-}
-
 export default function RegisterForm() {
-  const [formData, setFormData] = useState<FormData>({
-    fullName: '',
-    email: '',
-    password: '',
-    passwordConfirmation: '',
-  });
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-    let isValid = true;
-
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Имя обязательно для заполнения';
-      isValid = false;
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email обязателен для заполнения';
-      isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Некорректный формат email';
-      isValid = false;
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Пароль обязателен для заполнения';
-      isValid = false;
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Пароль должен содержать минимум 6 символов';
-      isValid = false;
-    }
-
-    if (formData.password !== formData.passwordConfirmation) {
-      newErrors.passwordConfirmation = 'Пароли не совпадают';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-  // Используем хук авторизации для регистрации
   const { register } = useAuth();
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
+  const [form] = Form.useForm();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+  const handleSubmit = async (values: FormData) => {
     setIsLoading(true);
+    setGeneralError(null);
+    setEmailError(null);
 
     try {
       // Отправляем данные на сервер через хук
-      await register(formData);
-
+      await register(values);
       // Перенаправление на главную страницу после успешной регистрации
       // происходит внутри хука useAuth
     } catch (error: any) {
       // Обработка ошибок API
       if (error.status === 409) {
-        setErrors({
-          email: 'Пользователь с таким email уже существует',
-        });
+        setEmailError('Пользователь с таким email уже существует');
+        form.setFields([
+          {
+            name: 'email',
+            errors: ['Пользователь с таким email уже существует'],
+          },
+        ]);
       } else {
-        setErrors({
-          general: error.message || 'Произошла ошибка при регистрации',
-        });
+        setGeneralError(error.message || 'Произошла ошибка при регистрации');
       }
     } finally {
       setIsLoading(false);
@@ -105,93 +57,119 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Регистрация</h2>
+    <Card className="auth-form-container">
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <Title level={3}>Регистрация</Title>
+      </div>
 
-      {errors.general && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{errors.general}</div>
+      {generalError && (
+        <Alert
+          message="Ошибка регистрации"
+          description={generalError}
+          type="error"
+          showIcon
+          style={{ marginBottom: 24 }}
+        />
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="fullName" className="block text-sm font-medium mb-1">
-            Полное имя
-          </label>
-          <input
-            type="text"
-            id="fullName"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            className={`w-full p-2 border rounded ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>}
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className={`w-full p-2 border rounded ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium mb-1">
-            Пароль
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className={`w-full p-2 border rounded ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-        </div>
-
-        <div className="mb-6">
-          <label htmlFor="passwordConfirmation" className="block text-sm font-medium mb-1">
-            Подтверждение пароля
-          </label>
-          <input
-            type="password"
-            id="passwordConfirmation"
-            name="passwordConfirmation"
-            value={formData.passwordConfirmation}
-            onChange={handleChange}
-            className={`w-full p-2 border rounded ${errors.passwordConfirmation ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.passwordConfirmation && (
-            <p className="mt-1 text-sm text-red-600">{errors.passwordConfirmation}</p>
-          )}
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50"
+      <Form
+        form={form}
+        name="register"
+        layout="vertical"
+        onFinish={handleSubmit}
+        autoComplete="off"
+      >
+        <Form.Item
+          name="fullName"
+          label="Полное имя"
+          rules={[{ required: true, message: 'Пожалуйста, введите ваше имя' }]}
         >
-          {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
-        </button>
-      </form>
+          <Input 
+            prefix={<UserOutlined />} 
+            placeholder="Введите полное имя" 
+            size="large"
+          />
+        </Form.Item>
 
-      <div className="mt-4 text-center">
-        <p className="text-sm text-gray-600">
+        <Form.Item
+          name="email"
+          label="Email"
+          validateStatus={emailError ? 'error' : ''}
+          help={emailError}
+          rules={[
+            { required: true, message: 'Пожалуйста, введите ваш email' },
+            { type: 'email', message: 'Пожалуйста, введите корректный email' }
+          ]}
+        >
+          <Input 
+            prefix={<MailOutlined />} 
+            placeholder="Введите email" 
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="password"
+          label="Пароль"
+          rules={[
+            { required: true, message: 'Пожалуйста, введите ваш пароль' },
+            { min: 6, message: 'Пароль должен содержать минимум 6 символов' }
+          ]}
+        >
+          <Input.Password 
+            prefix={<LockOutlined />} 
+            placeholder="Введите пароль" 
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="passwordConfirmation"
+          label="Подтверждение пароля"
+          dependencies={['password']}
+          rules={[
+            { required: true, message: 'Пожалуйста, подтвердите ваш пароль' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('password') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('Пароли не совпадают'));
+              },
+            }),
+          ]}
+        >
+          <Input.Password 
+            prefix={<CheckCircleOutlined />} 
+            placeholder="Подтвердите пароль" 
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            icon={<UserAddOutlined />}
+            loading={isLoading}
+            className="login-form-button"
+            size="large"
+          >
+            {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+          </Button>
+        </Form.Item>
+      </Form>
+
+      <Divider />
+      
+      <div style={{ textAlign: 'center' }}>
+        <Text type="secondary">
           Уже есть аккаунт?{' '}
-          <Link href="/login" className="text-blue-600 hover:underline">
+          <Link href="/login">
             Войти
           </Link>
-        </p>
+        </Text>
       </div>
-    </div>
+    </Card>
   );
 }

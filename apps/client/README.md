@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Client with Ant Design
+
+The client-side application for the AdonisJS + Next.js template. This application uses Next.js with Ant Design components for the UI.
+
+## Features
+
+- Modern UI with Ant Design components
+- Authentication system with role-based permissions
+- Responsive design optimized for various devices
+- TypeScript for enhanced type safety
 
 ## Getting Started
 
-First, run the development server:
+### Development
 
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Start the development server:
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The application will be accessible at http://localhost:3000.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Build
 
-## Learn More
+To build the application for production:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To start the production server:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm start
+```
 
-## Deploy on Vercel
+## Application Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `/app` - Next.js app directory
+- `/app/components` - Reusable components
+- `/app/hooks` - Custom React hooks
+- `/app/services` - API services
+- `/public` - Static files
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## UI Components
+
+### Ant Design Integration
+
+This project uses Ant Design v5 with React 19. We've integrated Ant Design with:
+
+- Customized theming
+- Russian language localization
+- Server-side rendering support
+- Responsive layouts
+
+### Key Components
+
+- `LoginForm` - Authentication form
+- `RegisterForm` - User registration form
+- `UserProfile` - User profile display
+- Various Ant Design components (Layout, Button, Card, etc.)
+
+## Authentication
+
+Authentication is handled via the `useAuth` hook which provides:
+
+- `login` - Login function
+- `register` - Registration function
+- `logout` - Logout function
+- `user` - Current user data
+- `userRole` - User role information
+- `userPermissions` - User permissions array
+
+## API Integration
+
+API calls to the backend server are made using the service functions defined in `/app/services/api.ts`.
+
+## Styling
+
+We use a combination of:
+
+- Ant Design's built-in styling system
+- CSS Modules for component-specific styles
+- Global CSS in `/app/globals.css`
+
+## Development Guidelines
+
+- Follow the component structure pattern in existing components
+- Use Ant Design components where possible
+- Keep components small and focused on a single responsibility
+- Use TypeScript interfaces for props and state
+- Follow ESLint and Prettier rules for code formatting
+
+## Common Issues and Solutions
+
+### Ant Design and React 19
+
+Since Ant Design v5 officially supports React 16-18, but we're using React 19, we've added the compatibility patch:
+
+```javascript
+import '@ant-design/v5-patch-for-react-19';
+```
+
+This patch enables Ant Design to work with React 19 without issues.
