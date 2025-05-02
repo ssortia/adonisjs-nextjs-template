@@ -4,6 +4,10 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { AuthProvider } from './hooks/useAuth';
 import AntdProvider from './components/AntdProvider';
 import './globals.css';
+import { useEffect, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Menu, MenuProps, unstableSetRender } from 'antd';
+import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -17,15 +21,6 @@ const geistMono = Geist_Mono({
 
 // Metadata can only be used in Server Components, not in Client Components
 // We'll set the title and description using document.title instead
-
-import {
-  useEffect,
-  useState,
-} from 'react';
-import { createRoot } from 'react-dom/client';
-import { Menu, MenuProps, unstableSetRender } from 'antd';
-import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
-
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -80,7 +75,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   unstableSetRender((node, container) => {
+    // @ts-ignore
     container._reactRoot ||= createRoot(container);
+    // @ts-ignore
     const root = container._reactRoot;
     root.render(node);
     return async () => {

@@ -87,8 +87,8 @@ export default function UserProfile() {
       )}
 
       <Divider />
-      
-      <Button 
+
+      <Button
         danger
         icon={<LogoutOutlined />}
         onClick={logout}
