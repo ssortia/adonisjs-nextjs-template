@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, column, belongsTo, beforeSave } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
@@ -68,7 +68,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
       query.preload('permissions')
     })
 
-    return this.role.permissions.some(p => p.name === permission)
+    return this.role.permissions.some((p) => p.name === permission)
   }
 
   /**
@@ -83,8 +83,8 @@ export default class User extends compose(BaseModel, AuthFinder) {
       query.preload('permissions')
     })
 
-    return permissions.every(permission => 
-      this.role.permissions.some(p => p.name === permission)
+    return permissions.every((permission) =>
+      this.role.permissions.some((p) => p.name === permission)
     )
   }
 
@@ -100,8 +100,8 @@ export default class User extends compose(BaseModel, AuthFinder) {
       query.preload('permissions')
     })
 
-    return permissions.some(permission => 
-      this.role.permissions.some(p => p.name === permission)
+    return permissions.some((permission) =>
+      this.role.permissions.some((p) => p.name === permission)
     )
   }
 }

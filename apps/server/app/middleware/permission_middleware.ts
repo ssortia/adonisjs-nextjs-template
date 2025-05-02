@@ -17,7 +17,7 @@ export default class PermissionMiddleware {
     }
   ) {
     // Проверка аутентификации
-    const user = ctx.auth.user
+    const { user } = ctx.auth
     if (!user) {
       return ctx.response.unauthorized({ message: 'Требуется аутентификация' })
     }
@@ -26,9 +26,10 @@ export default class PermissionMiddleware {
     const mode = options.mode || 'all'
 
     // Проверка наличия требуемых прав
-    const hasPermission = mode === 'all'
-      ? await user.hasAllPermissions(options.permissions)
-      : await user.hasAnyPermission(options.permissions)
+    const hasPermission =
+      mode === 'all'
+        ? await user.hasAllPermissions(options.permissions)
+        : await user.hasAnyPermission(options.permissions)
 
     if (!hasPermission) {
       return ctx.response.forbidden({
@@ -36,7 +37,7 @@ export default class PermissionMiddleware {
         required: {
           permissions: options.permissions,
           mode,
-        }
+        },
       })
     }
 

@@ -10,11 +10,9 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 
-router.get('/', async () => {
-  return {
-    hello: 'world',
-  }
-})
+router.get('/', async () => ({
+  hello: 'world',
+}))
 
 /**
  * Маршруты аутентификации
@@ -24,7 +22,7 @@ router
     // Регистрация, вход (не требуют аутентификации)
     router.post('/register', '#controllers/auth_controller.register')
     router.post('/login', '#controllers/auth_controller.login')
-    
+
     // Защищенные маршруты (требуют аутентификации)
     router
       .group(() => {
@@ -42,13 +40,15 @@ router
 router
   .group(() => {
     // API управления ролями и правами доступа
-    router.get('/roles', async ({ response }) => {
-      const roles = await import('#models/role').then(m => m.default.query().preload('permissions'))
+    router.get('/roles', async () => {
+      const roles = await import('#models/role').then((m) =>
+        m.default.query().preload('permissions')
+      )
       return { roles }
     })
-    
-    router.get('/permissions', async ({ response }) => {
-      const permissions = await import('#models/permission').then(m => m.default.all())
+
+    router.get('/permissions', async () => {
+      const permissions = await import('#models/permission').then((m) => m.default.all())
       return { permissions }
     })
   })

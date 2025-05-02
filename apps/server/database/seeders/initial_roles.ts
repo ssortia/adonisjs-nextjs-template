@@ -1,6 +1,6 @@
+import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Role from '#models/role'
 import Permission from '#models/permission'
-import { BaseSeeder } from '@adonisjs/lucid/seeders'
 
 export default class InitialRolesSeeder extends BaseSeeder {
   static environment = ['development', 'production']
@@ -8,75 +8,78 @@ export default class InitialRolesSeeder extends BaseSeeder {
   async run() {
     // Создание разрешений
     const permissions = await Permission.createMany([
-      { 
-        name: 'users.view', 
-        description: 'Просмотр пользователей' 
+      {
+        name: 'users.view',
+        description: 'Просмотр пользователей',
       },
-      { 
-        name: 'users.create', 
-        description: 'Создание пользователей' 
+      {
+        name: 'users.create',
+        description: 'Создание пользователей',
       },
-      { 
-        name: 'users.edit', 
-        description: 'Редактирование пользователей' 
+      {
+        name: 'users.edit',
+        description: 'Редактирование пользователей',
       },
-      { 
-        name: 'users.delete', 
-        description: 'Удаление пользователей' 
+      {
+        name: 'users.delete',
+        description: 'Удаление пользователей',
       },
-      { 
-        name: 'roles.view', 
-        description: 'Просмотр ролей' 
+      {
+        name: 'roles.view',
+        description: 'Просмотр ролей',
       },
-      { 
-        name: 'roles.create', 
-        description: 'Создание ролей' 
+      {
+        name: 'roles.create',
+        description: 'Создание ролей',
       },
-      { 
-        name: 'roles.edit', 
-        description: 'Редактирование ролей' 
+      {
+        name: 'roles.edit',
+        description: 'Редактирование ролей',
       },
-      { 
-        name: 'roles.delete', 
-        description: 'Удаление ролей' 
+      {
+        name: 'roles.delete',
+        description: 'Удаление ролей',
       },
-      { 
-        name: 'admin.access', 
-        description: 'Доступ к панели администратора' 
-      }
+      {
+        name: 'admin.access',
+        description: 'Доступ к панели администратора',
+      },
     ])
 
     // Создание ролей
     const admin = await Role.create({
       name: 'admin',
-      description: 'Администратор системы'
+      description: 'Администратор системы',
     })
 
     const manager = await Role.create({
       name: 'manager',
-      description: 'Менеджер'
+      description: 'Менеджер',
     })
 
     const user = await Role.create({
       name: 'user',
-      description: 'Обычный пользователь'
+      description: 'Обычный пользователь',
     })
 
     // Назначение разрешений для администратора (все разрешения)
-    await admin.related('permissions').attach(permissions.map(p => p.id))
+    // @ts-ignore
+    await admin.related('permissions').attach(permissions.map((p) => p.id))
 
     // Назначение разрешений для менеджера (только просмотр и редактирование)
-    await manager.related('permissions').attach(
-      permissions
-        .filter(p => p.name.includes('.view') || p.name.includes('.edit'))
-        .map(p => p.id)
-    )
+    // @ts-ignore
+    await manager
+      .related('permissions')
+      .attach(
+        permissions
+          .filter((p) => p.name.includes('.view') || p.name.includes('.edit'))
+          .map((p) => p.id)
+      )
 
     // Назначение разрешений для обычного пользователя
-    await user.related('permissions').attach(
-      permissions
-        .filter(p => p.name === 'users.view')
-        .map(p => p.id)
-    )
+    // @ts-ignore
+    await user
+      .related('permissions')
+      .attach(permissions.filter((p) => p.name === 'users.view').map((p) => p.id))
   }
 }

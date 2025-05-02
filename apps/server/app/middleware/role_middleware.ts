@@ -16,7 +16,7 @@ export default class RoleMiddleware {
     }
   ) {
     // Проверка аутентификации
-    const user = ctx.auth.user
+    const { user } = ctx.auth
     if (!user) {
       return ctx.response.unauthorized({ message: 'Требуется аутентификация' })
     }
@@ -32,10 +32,10 @@ export default class RoleMiddleware {
     }
 
     // Проверка соответствия роли
-    const hasRequiredRole = options.roles.some(role => user.hasRole(role))
+    const hasRequiredRole = options.roles.some((role) => user.hasRole(role))
     if (!hasRequiredRole) {
-      return ctx.response.forbidden({ 
-        message: 'Недостаточно прав доступа'
+      return ctx.response.forbidden({
+        message: 'Недостаточно прав доступа',
       })
     }
 

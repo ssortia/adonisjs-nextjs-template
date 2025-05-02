@@ -8,7 +8,7 @@ export default class extends BaseSchema {
       table.increments('id').notNullable()
       table.string('name').notNullable().unique()
       table.string('description').nullable()
-      
+
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
     })

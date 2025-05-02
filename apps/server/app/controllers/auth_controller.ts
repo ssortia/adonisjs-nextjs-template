@@ -1,16 +1,13 @@
+import { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import Role from '#models/role'
-import { HttpContext } from '@adonisjs/core/http'
-import {
-  loginValidator,
-  registerValidator,
-} from '#validators/auth_validator'
+import { loginValidator, registerValidator } from '#validators/auth_validator'
 
 export default class AuthController {
   /**
    * Регистрация нового пользователя
    */
-  async register({request, response}: HttpContext) {
+  async register({ request, response }: HttpContext) {
     // Валидация входящих данных
     const data = await request.validateUsing(registerValidator)
 
@@ -35,12 +32,12 @@ export default class AuthController {
 
     // Загрузка роли пользователя для ответа
     await user.load('role')
-    
+
     // Создание и возврат токена доступа
     const token = await User.accessTokens.create(user)
     console.log(token.identifier, token.value!.release())
     // Не логируем токен, чтобы избежать [redacted]
-    // Несмотря на то, что в логах показывается [redacted], 
+    // Несмотря на то что в логах показывается [redacted],
     // реальное значение token.value сохраняется и возвращается клиенту
     return {
       user: {
@@ -56,8 +53,8 @@ export default class AuthController {
   /**
    * Вход пользователя
    */
-  async login({request, response}: HttpContext) {
-    const {email, password} = await request.validateUsing(loginValidator)
+  async login({ request }: HttpContext) {
+    const { email, password } = await request.validateUsing(loginValidator)
 
     // Поиск пользователя
     const user = await User.verifyCredentials(email, password)
@@ -67,7 +64,7 @@ export default class AuthController {
 
     // Создание токена доступа
     const token = await User.accessTokens.create(user)
-    
+
     // Возвращаем токен без логирования
     return {
       user: {
@@ -83,7 +80,8 @@ export default class AuthController {
   /**
    * Выход пользователя
    */
-  async logout({auth, response}: HttpContext) {
+  async logout({ auth, response }: HttpContext) {
+    // @ts-ignore
     await auth.use('api').logout()
 
     return response.noContent()
@@ -92,7 +90,7 @@ export default class AuthController {
   /**
    * Получение информации о текущем пользователе
    */
-  async me({auth, response}: HttpContext) {
+  async me({ auth }: HttpContext) {
     const user = auth.use('api').user!
 
     // Загрузка роли пользователя
@@ -111,11 +109,12 @@ export default class AuthController {
   /**
    * Получение информации о правах пользователя
    */
-  async permissions({auth, response}: HttpContext) {
+  async permissions({ auth, response }: HttpContext) {
     const user = auth.use('api').user!
 
     // Загрузка роли и прав пользователя
     await user.load('role', (query) => {
+      // @ts-ignore
       query.preload('permissions')
     })
 
@@ -127,7 +126,7 @@ export default class AuthController {
 
     return {
       role: user.role.name,
-      permissions: user.role.permissions.map(p => p.name),
+      permissions: user.role.permissions.map((p) => p.name),
     }
   }
 }
