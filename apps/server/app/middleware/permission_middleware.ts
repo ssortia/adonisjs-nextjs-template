@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
+import User from '#models/user'
 
 /**
  * Middleware для проверки наличия указанных прав у пользователя
@@ -17,14 +18,14 @@ export default class PermissionMiddleware {
     }
   ) {
     // Проверка аутентификации
-    const { user } = ctx.auth
+    const { user }: { user: User | undefined} = ctx.auth
+
     if (!user) {
       return ctx.response.unauthorized({ message: 'Требуется аутентификация' })
     }
 
     // Режим проверки прав (all - требуются все права, any - требуется хотя бы одно право)
     const mode = options.mode || 'all'
-
     // Проверка наличия требуемых прав
     const hasPermission =
       mode === 'all'

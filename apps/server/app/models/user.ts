@@ -77,10 +77,6 @@ export default class User extends compose(BaseModel, AuthFinder) {
    * Проверяет, имеет ли пользователь все указанные разрешения
    */
   async hasAllPermissions(permissions: string[]): Promise<boolean> {
-    if (!this.role) {
-      return false
-    }
-
     // @ts-ignore
     await this.load('role', (query) => {
       // @ts-ignore
@@ -88,7 +84,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
     })
 
     return permissions.every((permission) =>
-      this.role.permissions.some((p) => p.name === permission)
+      this.role?.permissions?.some((p) => p.name === permission)
     )
   }
 

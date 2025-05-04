@@ -64,6 +64,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   // Добавление токена авторизации, если он есть в localStorage
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
   if (token) {
+    // @ts-ignore
     headers.Authorization = `Bearer ${token}`;
   }
 
@@ -133,6 +134,33 @@ export const adminApi = {
   // Получение списка всех разрешений
   getPermissions: (): Promise<{ permissions: Permission[] }> =>
     fetchApi<{ permissions: Permission[] }>('/api/admin/permissions'),
+    
+  // Получение разрешения по ID
+  getPermission: (id: number): Promise<{ permission: Permission }> =>
+    fetchApi<{ permission: Permission }>(`/api/admin/permissions/${id}`),
+    
+  // Создание нового разрешения
+  createPermission: (data: { name: string; description?: string | null }): Promise<{ permission: Permission }> =>
+    fetchApi<{ permission: Permission }>('/api/admin/permissions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+    
+  // Обновление разрешения
+  updatePermission: (
+    id: number, 
+    data: { name: string; description?: string | null }
+  ): Promise<{ permission: Permission }> =>
+    fetchApi<{ permission: Permission }>(`/api/admin/permissions/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+    
+  // Удаление разрешения
+  deletePermission: (id: number): Promise<void> =>
+    fetchApi<void>(`/api/admin/permissions/${id}`, {
+      method: 'DELETE',
+    }),
 };
 
 // Утилиты для работы с авторизацией
