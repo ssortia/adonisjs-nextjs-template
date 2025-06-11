@@ -1,65 +1,107 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import styles from './page.module.css';
+import { Layout, Typography, Space, Button, Card } from 'antd';
+import { UserAddOutlined, LoginOutlined } from '@ant-design/icons';
 import UserProfile from './components/UserProfile';
+
+const { Title, Paragraph } = Typography;
+const { Header, Content, Footer } = Layout;
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>AdonisJS + Next.js Template</li>
-          <li>С готовой системой аутентификации и ролями</li>
-        </ol>
-
-        {/* Здесь размещаем профиль пользователя или кнопки авторизации */}
-        <div className="mt-8 w-full max-w-md">
-          <UserProfile />
+    <Layout style={{ minHeight: '100vh' }}>
+      <Header style={{ background: '#fff', padding: '0 50px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+          <Image
+            src="/next.svg"
+            alt="Next.js logo"
+            width={120}
+            height={25}
+            priority
+          />
         </div>
+      </Header>
+      
+      <Content style={{ padding: '50px', background: '#f5f5f5' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            
+            <Card style={{ textAlign: 'center' }}>
+              <Space direction="vertical" size="large">
+                <Title level={1}>AdonisJS + Next.js Template</Title>
+                <Paragraph style={{ fontSize: '16px', color: '#666' }}>
+                  Готовое решение с системой аутентификации и управления ролями
+                </Paragraph>
+              </Space>
+            </Card>
 
-        <div className={styles.ctas}>
-          <Link href="/register" className={styles.primary}>
-            Регистрация
-          </Link>
-          <Link href="/login" className={styles.secondary}>
-            Войти в систему
-          </Link>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div>
+                <UserProfile />
+              </div>
+              
+              <Card title="Начать работу">
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  <Link href="/register" style={{ textDecoration: 'none' }}>
+                    <Button 
+                      type="primary" 
+                      size="large" 
+                      icon={<UserAddOutlined />}
+                      style={{ width: '100%' }}
+                    >
+                      Регистрация
+                    </Button>
+                  </Link>
+                  <Link href="/login" style={{ textDecoration: 'none' }}>
+                    <Button 
+                      size="large" 
+                      icon={<LoginOutlined />}
+                      style={{ width: '100%' }}
+                    >
+                      Войти в систему
+                    </Button>
+                  </Link>
+                </Space>
+              </Card>
+            </div>
+            
+          </Space>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image aria-hidden src="/file.svg" alt="File icon" width={16} height={16} />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image aria-hidden src="/window.svg" alt="Window icon" width={16} height={16} />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image aria-hidden src="/globe.svg" alt="Globe icon" width={16} height={16} />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </Content>
+      
+      <Footer style={{ textAlign: 'center', background: '#fff' }}>
+        <Space size="large">
+          <a
+            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#666' }}
+          >
+            <Image aria-hidden src="/file.svg" alt="File icon" width={16} height={16} />
+            Learn
+          </a>
+          <a
+            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#666' }}
+          >
+            <Image aria-hidden src="/window.svg" alt="Window icon" width={16} height={16} />
+            Examples
+          </a>
+          <a
+            href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#666' }}
+          >
+            <Image aria-hidden src="/globe.svg" alt="Globe icon" width={16} height={16} />
+            Go to nextjs.org →
+          </a>
+        </Space>
+      </Footer>
+    </Layout>
   );
 }

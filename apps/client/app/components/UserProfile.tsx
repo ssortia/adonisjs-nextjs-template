@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Card, Typography, Button, Descriptions, Tag, List, Space, Spin } from 'antd';
+import { LogoutOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth';
+
+const { Title, Text } = Typography;
 
 export default function UserProfile() {
   const { user, userRole, userPermissions, logout, isLoading } = useAuth();
@@ -12,65 +16,115 @@ export default function UserProfile() {
   }, [userRole]);
 
   if (isLoading) {
-    return <div className="p-4 bg-white shadow-md rounded-lg">Загрузка...</div>;
+    return (
+      <Card>
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <Spin size="large" />
+          <div style={{ marginTop: '16px' }}>Загрузка...</div>
+        </div>
+      </Card>
+    );
   }
 
   if (!user) {
-    return <div className="p-4 bg-white shadow-md rounded-lg">Пользователь не авторизован</div>;
+    return (
+      <Card>
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <Text type="secondary">Пользователь не авторизован</Text>
+        </div>
+      </Card>
+    );
   }
 
   return (
-    <div className="p-4 bg-white shadow-md rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Профиль пользователя</h2>
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Card>
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Title level={2} style={{ marginBottom: 0 }}>
+            <UserOutlined style={{ marginRight: '8px' }} />
+            Профиль пользователя
+          </Title>
 
-      <div className="mb-4">
-        <p>
-          <strong>ID:</strong> {user.id}
-        </p>
-        <p>
-          <strong>Имя:</strong> {user.fullName || 'Не указано'}
-        </p>
-        <p>
-          <strong>Email:</strong> {user.email}
-        </p>
-        <p>
-          <strong>Роль:</strong> {userRole || 'Не назначена'}
-        </p>
-      </div>
+          <Descriptions
+            bordered
+            column={1}
+            items={[
+              {
+                key: 'id',
+                label: 'ID',
+                children: user.id,
+              },
+              {
+                key: 'name',
+                label: 'Имя',
+                children: user.fullName || 'Не указано',
+              },
+              {
+                key: 'email',
+                label: 'Email',
+                children: user.email,
+              },
+              {
+                key: 'role',
+                label: 'Роль',
+                children: userRole ? (
+                  <Tag color={userRole === 'admin' ? 'red' : 'blue'}>
+                    {userRole}
+                  </Tag>
+                ) : (
+                  'Не назначена'
+                ),
+              },
+            ]}
+          />
 
-      {userPermissions.length > 0 && (
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Разрешения:</h3>
-          <ul className="list-disc list-inside">
-            {userPermissions.map((permission, index) => (
-              <li key={index} className="text-sm text-gray-700">
-                {permission}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+          {userPermissions.length > 0 && (
+            <div>
+              <Title level={4}>Разрешения:</Title>
+              <List
+                size="small"
+                dataSource={userPermissions}
+                renderItem={(permission) => (
+                  <List.Item>
+                    <Tag>{permission}</Tag>
+                  </List.Item>
+                )}
+              />
+            </div>
+          )}
 
-      {isAdmin && (
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Административные функции:</h3>
-          <div className="flex flex-col space-y-2">
-            <a href="/admin/users" className="text-blue-500 hover:underline">
-              Управление пользователями
-            </a>
-            <a href="/admin/roles" className="text-blue-500 hover:underline">
-              Управление ролями
-            </a>
-          </div>
-        </div>
-      )}
+          {isAdmin && (
+            <Card
+              type="inner"
+              title={
+                <span>
+                  <SettingOutlined style={{ marginRight: '8px' }} />
+                  Административные функции
+                </span>
+              }
+            >
+              <Space direction="vertical">
+                <Button type="link" href="/admin/users">
+                  Управление пользователями
+                </Button>
+                <Button type="link" href="/admin/roles">
+                  Управление ролями
+                </Button>
+              </Space>
+            </Card>
+          )}
 
-      <button
-        onClick={logout}
-        className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-      >
-        Выйти
-      </button>
-    </div>
+          <Button
+            type="primary"
+            danger
+            icon={<LogoutOutlined />}
+            onClick={logout}
+            size="large"
+          >
+            Выйти
+          </Button>
+        </Space>
+      </Card>
+    </Space>
   );
 }

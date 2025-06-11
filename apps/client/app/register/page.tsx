@@ -1,14 +1,14 @@
+import { Layout } from 'antd';
 import RegisterForm from '../components/RegisterForm';
+
+const { Content } = Layout;
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="text-center text-3xl font-extrabold text-gray-900 mb-8">
-          Создание аккаунта
-        </h1>
+    <Layout style={{ minHeight: '100vh', background: '#f5f5f5' }}>
+      <Content style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '50px' }}>
         <RegisterForm />
-      </div>
-    </div>
+      </Content>
+    </Layout>
   );
 }
