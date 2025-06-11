@@ -6,11 +6,12 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/client/package.json ./apps/client/
 
-RUN npm install --prefix apps/client
+RUN npm install
 
 COPY . .
 
-CMD ["npm", "run", "dev", "--prefix", "apps/client"]
+WORKDIR /app/apps/client
+CMD ["npm", "run", "dev"]
 
 # Prod образ
 FROM node:22-alpine AS production
