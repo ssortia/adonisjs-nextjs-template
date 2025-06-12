@@ -5,27 +5,18 @@ import Link from 'next/link';
 import { Layout, Typography, Space, Button, Card } from 'antd';
 import { UserAddOutlined, LoginOutlined } from '@ant-design/icons';
 import UserProfile from './components/UserProfile';
+import AppHeader from './components/AppHeader';
 
 const { Title, Paragraph } = Typography;
-const { Header, Content, Footer } = Layout;
+const { Content, Footer } = Layout;
 
 export default function Home() {
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{ background: '#fff', padding: '0 50px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-          <Image
-            src="/next.svg"
-            alt="Next.js logo"
-            width={120}
-            height={25}
-            priority
-          />
-        </div>
-      </Header>
+      <AppHeader />
       
       <Content style={{ padding: '50px', background: '#f5f5f5' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
             
             <Card style={{ textAlign: 'center' }}>
