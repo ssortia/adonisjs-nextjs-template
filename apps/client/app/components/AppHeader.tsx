@@ -7,7 +7,10 @@ import {
   SafetyOutlined,
   LogoutOutlined,
   LoginOutlined,
-  UserAddOutlined, SettingOutlined
+  UserAddOutlined, 
+  SettingOutlined,
+  BookOutlined,
+  KeyOutlined
 } from '@ant-design/icons';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -16,6 +19,15 @@ import type { MenuProps } from 'antd';
 
 const { Header } = Layout;
 
+interface MenuItem {
+  key: string;
+  icon: JSX.Element;
+  name: string;
+  link?: string;
+  permission?: string;
+  children?: MenuItem[];
+}
+
 export default function AppHeader() {
   const { user, userPermissions, logout, isLoading } = useAuth();
 
@@ -23,7 +35,7 @@ export default function AppHeader() {
     return userPermissions.includes(permission);
   };
 
-  const menuConfig = [
+  const menuConfig: MenuItem[] = [
     {
       key: 'profile',
       icon: <UserOutlined />,
@@ -38,11 +50,25 @@ export default function AppHeader() {
       permission: "users.view",
     },
     {
-      key: 'dictionaries.roles',
-      icon: <SafetyOutlined />,
-      name: "Роли",
-      link: "/dictionaries/roles",
-      permission: "roles.view",
+      key: 'dictionaries',
+      icon: <BookOutlined />,
+      name: "Справочники",
+      children: [
+        {
+          key: 'dictionaries.roles',
+          icon: <SafetyOutlined />,
+          name: "Роли",
+          link: "/dictionaries/roles",
+          permission: "roles.view",
+        },
+        {
+          key: 'dictionaries.permissions',
+          icon: <KeyOutlined />,
+          name: "Права",
+          link: "/dictionaries/permissions",
+          permission: "permissions.view",
+        },
+      ],
     },
     {
       key: 'admin.access',
@@ -57,12 +83,40 @@ export default function AppHeader() {
     if (!user) return [];
 
     return menuConfig
-      .filter(item => !item.permission || hasPermission(item.permission))
-      .map(item => ({
-        key: item.key,
-        icon: item.icon,
-        label: <Link href={item.link}>{item.name}</Link>,
-      }));
+      .filter(item => {
+        // Если у элемента есть дочерние элементы, проверяем права для них
+        if (item.children) {
+          return item.children.some(child => !child.permission || hasPermission(child.permission));
+        }
+        // Для обычных элементов проверяем права или отсутствие требований к правам
+        return !item.permission || hasPermission(item.permission);
+      })
+      .map(item => {
+        // Если у элемента есть дочерние элементы
+        if (item.children) {
+          const visibleChildren = item.children
+            .filter(child => !child.permission || hasPermission(child.permission))
+            .map(child => ({
+              key: child.key,
+              icon: child.icon,
+              label: <Link href={child.link}>{child.name}</Link>,
+            }));
+
+          return {
+            key: item.key,
+            icon: item.icon,
+            label: item.name,
+            children: visibleChildren,
+          };
+        }
+
+        // Обычный элемент меню
+        return {
+          key: item.key,
+          icon: item.icon,
+          label: <Link href={item.link}>{item.name}</Link>,
+        };
+      });
   };
 
   const handleLogout = () => {

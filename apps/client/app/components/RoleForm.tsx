@@ -149,7 +149,12 @@ export default function RoleForm({
 
       <Divider>Права доступа</Divider>
 
-      <div style={{ maxHeight: '400px', overflowY: 'auto', padding: '8px 0' }}>
+      <div style={{ 
+        maxHeight: '400px', 
+        overflowY: 'auto', 
+        overflowX: 'hidden',
+        padding: '8px 0' 
+      }}>
         <Row gutter={[16, 16]}>
           {Object.entries(groupedPermissions).map(([groupKey, groupPermissions]) => (
             <Col span={24} key={groupKey}>
@@ -165,22 +170,29 @@ export default function RoleForm({
                   </Checkbox>
                 }
                 bodyStyle={{ padding: '12px 16px' }}
+                style={{ width: '100%', minWidth: 0 }}
               >
-                <Row gutter={[8, 8]}>
-                  {groupPermissions.map(permission => {
+                <Row gutter={[8, 8]} style={{ margin: 0 }}>
+                  {groupPermissions.sort((a, b) => a.id - b.id).map(permission => {
                     const [, action] = permission.name.split('.');
                     return (
-                      <Col span={12} key={permission.id}>
+                      <Col 
+                        xs={24} 
+                        sm={12} 
+                        md={12} 
+                        lg={12}
+                        xl={12}
+                        key={permission.id}
+                        style={{ minWidth: 0 }}
+                      >
                         <Checkbox
                           checked={selectedPermissions.includes(permission.id)}
                           onChange={(e) => handlePermissionChange(permission.id, e.target.checked)}
+                          style={{ width: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}
                         >
-                          {getActionTitle(action)}
-                          {permission.description && (
-                            <div style={{ fontSize: '12px', color: '#666', marginLeft: '24px' }}>
-                              {permission.description}
-                            </div>
-                          )}
+                          <span style={{ fontSize: '14px' }}>
+                            {permission.description || getActionTitle(action)}
+                          </span>
                         </Checkbox>
                       </Col>
                     );

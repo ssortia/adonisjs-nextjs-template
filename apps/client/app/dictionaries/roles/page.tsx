@@ -24,7 +24,7 @@ export default function RolesPage() {
     fetchRoles
   } = useRoles();
   const { permissions } = usePermissions();
-  
+  console.log(permissions);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [searchText, setSearchText] = useState('');
@@ -128,7 +128,7 @@ export default function RolesPage() {
         open={modalVisible}
         onCancel={handleModalClose}
         footer={null}
-        width={800}
+        width={700}
         destroyOnClose
       >
         <RoleForm
