@@ -60,14 +60,13 @@ export default class User extends compose(BaseModel, AuthFinder) {
    * Проверяет, имеет ли пользователь хотя бы одно из указанных разрешений
    */
   async hasPermission(permission: string): Promise<boolean> {
-    if (!this.role) {
+    if (!this.roleId) {
       return false
     }
 
     await this.load('role', (query) => {
       query.preload('permissions')
     })
-
     return this.role.permissions.some((p) => p.name === permission)
   }
 

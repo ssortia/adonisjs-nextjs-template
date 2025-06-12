@@ -16,16 +16,12 @@ export default class PermissionMiddleware {
       mode?: 'all' | 'any'
     }
   ) {
-    // Проверка аутентификации
     const { user } = ctx.auth
     if (!user) {
       return ctx.response.unauthorized({ message: 'Требуется аутентификация' })
     }
 
-    // Режим проверки прав (all - требуются все права, any - требуется хотя бы одно право)
     const mode = options.mode || 'all'
-
-    // Проверка наличия требуемых прав
     const hasPermission =
       mode === 'all'
         ? await user.hasAllPermissions(options.permissions)
@@ -41,7 +37,6 @@ export default class PermissionMiddleware {
       })
     }
 
-    // Продолжить выполнение запроса, если права соответствуют
     return next()
   }
 }
