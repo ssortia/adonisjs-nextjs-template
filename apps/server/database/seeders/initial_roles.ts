@@ -41,6 +41,22 @@ export default class InitialRolesSeeder extends BaseSeeder {
         description: 'Удаление ролей',
       },
       {
+        name: 'permissions.view',
+        description: 'Просмотр прав',
+      },
+      {
+        name: 'permissions.create',
+        description: 'Создание прав',
+      },
+      {
+        name: 'permissions.edit',
+        description: 'Редактирование прав',
+      },
+      {
+        name: 'permissions.delete',
+        description: 'Удаление прав',
+      },
+      {
         name: 'admin.access',
         description: 'Доступ к панели администратора',
       },

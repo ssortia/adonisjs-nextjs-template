@@ -64,6 +64,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   // Добавление токена авторизации, если он есть в localStorage
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
   if (token) {
+    // @ts-ignore
     headers.Authorization = `Bearer ${token}`;
   }
 
@@ -125,16 +126,6 @@ export const authApi = {
     fetchApi<UserPermissions>('/api/auth/permissions'),
 };
 
-// API для работы с администрированием (только для админов)
-export const adminApi = {
-  // Получение списка всех ролей
-  getRoles: (): Promise<{ roles: Role[] }> => fetchApi<{ roles: Role[] }>('/api/admin/roles'),
-
-  // Получение списка всех разрешений
-  getPermissions: (): Promise<{ permissions: Permission[] }> =>
-    fetchApi<{ permissions: Permission[] }>('/api/admin/permissions'),
-};
-
 // Утилиты для работы с авторизацией
 export const authUtils = {
   // Сохранение данных авторизации
@@ -170,3 +161,22 @@ export const authUtils = {
     return null;
   },
 };
+
+// Основные API методы для CRUD операций
+const api = {
+  get: <T>(endpoint: string): Promise<T> => fetchApi<T>(endpoint),
+  post: <T>(endpoint: string, data?: any): Promise<T> => 
+    fetchApi<T>(endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    }),
+  put: <T>(endpoint: string, data?: any): Promise<T> => 
+    fetchApi<T>(endpoint, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    }),
+  delete: <T>(endpoint: string): Promise<T> => 
+    fetchApi<T>(endpoint, { method: 'DELETE' }),
+};
+
+export default api;

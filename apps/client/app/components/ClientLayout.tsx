@@ -1,0 +1,41 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
+import { Layout } from 'antd';
+import { useAuth } from '../hooks/useAuth';
+import AppHeader from './AppHeader';
+
+const { Content } = Layout;
+
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const pathname = usePathname();
+  
+  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const showHeader = isAuthenticated && !isAuthPage && !isLoading;
+
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        Загрузка...
+      </div>
+    );
+  }
+
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
+      {showHeader && <AppHeader />}
+      <Content style={{ 
+        padding: showHeader ? '0' : '24px',
+        background: showHeader ? '#f0f2f5' : 'transparent'
+      }}>
+        {children}
+      </Content>
+    </Layout>
+  );
+}
