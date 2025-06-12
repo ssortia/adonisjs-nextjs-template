@@ -5,35 +5,16 @@ import type { HttpContext } from '@adonisjs/core/http'
 export default class RolesController extends ResourceController<typeof Role> {
   protected model = Role
 
+  protected applyPreloads(query: any) {
+    return query.preload('permissions')
+  }
+
   protected applySearch(query: any, search: string) {
     return query.where((builder: any) => {
       builder
         .whereILike('name', `%${search}%`)
         .orWhereILike('description', `%${search}%`)
-    }).preload('permissions')
-  }
-
-  async index({ request, response }: HttpContext) {
-    try {
-      const page = Math.max(1, Number(request.input('page', 1)))
-      const limit = Math.min(100, Math.max(1, Number(request.input('limit', 10))))
-      const search = request.input('search', '').trim()
-
-      let query = this.model.query().preload('permissions')
-
-      if (search) {
-        query = this.applySearch(query, search)
-      }
-
-      query = this.applyFilters(query, request)
-      query = this.applySorting(query, request)
-
-      const records = await query.paginate(page, limit)
-      
-      return response.ok(records)
-    } catch (error) {
-      return response.badRequest({ message: 'Failed to fetch records', error: error.message })
-    }
+    })
   }
 
   async store({ request, response }: HttpContext) {
@@ -79,7 +60,4 @@ export default class RolesController extends ResourceController<typeof Role> {
     }
   }
 
-  protected async findRecord(id: string | number) {
-    return await this.model.query().where('id', id).preload('permissions').firstOrFail()
-  }
 }

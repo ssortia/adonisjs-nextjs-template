@@ -16,6 +16,9 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
 
       let query = this.model.query()
 
+      // Apply preloads before any other operations
+      query = this.applyPreloads(query)
+
       if (search) {
         query = this.applySearch(query, search)
       }
@@ -105,7 +108,16 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
    * Find a single record by ID
    */
   protected async findRecord(id: string | number) {
-    return await this.model.findOrFail(id)
+    let query = this.model.query().where('id', id)
+    query = this.applyPreloads(query)
+    return await query.firstOrFail()
+  }
+
+  /**
+   * Apply preloads to query (override in child classes)
+   */
+  protected applyPreloads(query: any) {
+    return query
   }
 
   /**
