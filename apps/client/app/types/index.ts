@@ -12,12 +12,17 @@ export interface Role {
   id: number;
   name: string;
   description: string | null;
+  permissions?: Permission[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Permission {
   id: number;
   name: string;
   description: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UserFormData {
@@ -31,7 +36,13 @@ export interface PermissionFormData {
   name: string;
   description?: string;
 }
-3
+
+export interface RoleFormData {
+  name: string;
+  description?: string;
+  permissions?: number[];
+}
+
 export interface ApiResponse<T> {
   data: T;
   meta?: {
