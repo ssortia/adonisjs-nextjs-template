@@ -64,7 +64,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
       return false
     }
 
+    // @ts-ignore
     await this.load('role', (query) => {
+      // @ts-ignore
       query.preload('permissions')
     })
     return this.role.permissions.some((p) => p.name === permission)
@@ -78,7 +80,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
       return false
     }
 
+    // @ts-ignore
     await this.load('role', (query) => {
+      // @ts-ignore
       query.preload('permissions')
     })
 
@@ -95,7 +99,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
       return false
     }
 
+    // @ts-ignore
     await this.load('role', (query) => {
+      // @ts-ignore
       query.preload('permissions')
     })
 
