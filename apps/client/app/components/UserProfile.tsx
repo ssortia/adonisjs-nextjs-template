@@ -1,19 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, Typography, Button, Descriptions, Tag, List, Space, Spin } from 'antd';
-import { LogoutOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Space, Spin, Tag, Typography } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth';
 
 const { Title, Text } = Typography;
 
 export default function UserProfile() {
-  const { user, userRole, userPermissions, logout, isLoading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    setIsAdmin(userRole === 'admin');
-  }, [userRole]);
+  const { user, userRole, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -68,9 +62,7 @@ export default function UserProfile() {
                 key: 'role',
                 label: 'Роль',
                 children: userRole ? (
-                  <Tag color={userRole === 'admin' ? 'red' : 'blue'}>
-                    {userRole}
-                  </Tag>
+                  <Tag color={userRole === 'admin' ? 'red' : 'blue'}>{userRole}</Tag>
                 ) : (
                   'Не назначена'
                 ),
