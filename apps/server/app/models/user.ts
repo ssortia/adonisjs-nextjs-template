@@ -28,6 +28,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare roleId: number | null
 
+  @column()
+  declare blocked: boolean
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

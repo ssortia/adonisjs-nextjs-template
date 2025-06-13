@@ -3,6 +3,7 @@ export interface User {
   fullName: string | null;
   email: string;
   roleId: number | null;
+  blocked: boolean;
   role?: Role;
   createdAt: string;
   updatedAt: string;
@@ -30,6 +31,7 @@ export interface UserFormData {
   email: string;
   password?: string;
   roleId?: number;
+  blocked?: boolean;
 }
 
 export interface PermissionFormData {

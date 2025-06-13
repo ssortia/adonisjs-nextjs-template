@@ -51,12 +51,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const { permissions, role } = await authApi.getUserPermissions();
           setUserPermissions(permissions);
           setUserRole(role);
-        } catch (error) {
+        } catch (error: any) {
           // При ошибке очищаем данные авторизации
           authUtils.clearAuth();
           setUser(null);
           setUserPermissions([]);
           setUserRole(null);
+          
+          // Если пользователь заблокирован, показываем уведомление
+          if (error?.response?.status === 403) {
+            console.error('Аккаунт заблокирован');
+          }
         }
       }
       setIsLoading(false);
@@ -67,7 +72,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Вход пользователя
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
     try {
       const response = await authApi.login({ email, password });
       authUtils.setAuth(response);
@@ -81,14 +85,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.push('/');
     } catch (error) {
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   // Регистрация пользователя
   const register = async (data: any) => {
-    setIsLoading(true);
     try {
       const response = await authApi.register(data);
       authUtils.setAuth(response);
@@ -102,8 +103,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.push('/');
     } catch (error) {
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 

@@ -26,8 +26,11 @@ export default function LoginForm() {
     try {
       await login(values.email, values.password);
     } catch (error: any) {
+      console.log(error);
       if (error.status === 401) {
         setError('Неверный email или пароль');
+      } else if (error.status === 403) {
+        setError('Ваш аккаунт заблокирован. Обратитесь к администратору');
       } else {
         setError(error.message || 'Произошла ошибка при входе');
       }

@@ -2,15 +2,13 @@
 
 import { Layout } from 'antd';
 import LoginForm from '../components/LoginForm';
-import AppHeader from '../components/AppHeader';
 
 const { Content } = Layout;
 
 export default function LoginPage() {
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <AppHeader />
-      <Content style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '50px', background: '#f5f5f5' }}>
+    <Layout style={{ minHeight: '100vh', background: 'var(--background)' }}>
+      <Content style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '50px', background: 'transparent' }}>
         <LoginForm />
       </Content>
     </Layout>

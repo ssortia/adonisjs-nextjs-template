@@ -67,6 +67,18 @@ export default function UsersTable({
       sorter: (a, b) => (a.role?.name || '').localeCompare(b.role?.name || ''),
     },
     {
+      title: 'Статус',
+      dataIndex: 'blocked',
+      key: 'blocked',
+      width: 100,
+      render: (blocked: boolean) => (
+        <Tag color={blocked ? 'red' : 'green'}>
+          {blocked ? 'Заблокирован' : 'Активен'}
+        </Tag>
+      ),
+      sorter: (a, b) => Number(a.blocked) - Number(b.blocked),
+    },
+    {
       title: 'Создан',
       dataIndex: 'createdAt',
       key: 'createdAt',

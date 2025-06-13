@@ -1,4 +1,4 @@
-import { Form, Input, Select, Space, Button } from 'antd';
+import { Form, Input, Select, Space, Button, Checkbox } from 'antd';
 import type { User, Role, UserFormData } from '../types';
 
 interface UserFormProps {
@@ -33,8 +33,11 @@ export default function UserForm({ user, roles, onSubmit, onCancel, loading = fa
               fullName: user?.fullName,
               email: user?.email,
               roleId: user?.roleId,
+              blocked: user?.blocked || false,
             }
-          : undefined
+          : {
+              blocked: false,
+            }
       }
     >
       <Form.Item
@@ -85,6 +88,14 @@ export default function UserForm({ user, roles, onSubmit, onCancel, loading = fa
             </Select.Option>
           ))}
         </Select>
+      </Form.Item>
+
+      <Form.Item
+        label="Статус"
+        name="blocked"
+        valuePropName="checked"
+      >
+        <Checkbox>Заблокирован</Checkbox>
       </Form.Item>
 
       <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>

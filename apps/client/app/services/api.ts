@@ -81,6 +81,17 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
   // Если ответ не успешный, выбросить ошибку
   if (!response.ok) {
+    // Специальная обработка для блокировки пользователя только для существующих токенов
+    if (response.status === 403 && data?.message?.includes('заблокирован') && endpoint !== '/api/auth/login') {
+      // Очищаем данные авторизации при блокировке только если это не попытка входа
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        // Перенаправляем на страницу входа
+        window.location.href = '/login?blocked=true';
+      }
+    }
+    
     throw new ApiError(
       data?.message || 'Произошла ошибка при выполнении запроса',
       response.status,

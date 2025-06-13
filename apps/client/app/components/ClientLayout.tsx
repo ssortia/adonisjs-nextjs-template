@@ -16,14 +16,17 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   if (isLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
-        Загрузка...
-      </div>
+      <Layout style={{ minHeight: '100vh', background: 'var(--background)' }}>
+        <Content style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh',
+          background: 'transparent'
+        }}>
+          Загрузка...
+        </Content>
+      </Layout>
     );
   }
 

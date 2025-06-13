@@ -28,6 +28,7 @@ export default class AuthController {
       email: data.email,
       password: data.password, // пароль будет хэширован автоматически благодаря AuthFinder
       roleId: defaultRole.id,
+      blocked: false,
     })
 
     // Загрузка роли пользователя для ответа
@@ -44,6 +45,7 @@ export default class AuthController {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
+        blocked: user.blocked,
         role: user.role,
       },
       token: token.value!.release(),
@@ -53,11 +55,18 @@ export default class AuthController {
   /**
    * Вход пользователя
    */
-  async login({ request }: HttpContext) {
+  async login({ request, response }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
 
     // Поиск пользователя
     const user = await User.verifyCredentials(email, password)
+
+    // Проверка на блокировку
+    if (user.blocked) {
+      return response.forbidden({
+        message: 'Ваш аккаунт заблокирован. Обратитесь к администратору',
+      })
+    }
 
     // Загрузка роли пользователя
     await user.load('role')
@@ -71,6 +80,7 @@ export default class AuthController {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
+        blocked: user.blocked,
         role: user.role,
       },
       token: token.value!.release(),
@@ -90,8 +100,18 @@ export default class AuthController {
   /**
    * Получение информации о текущем пользователе
    */
-  async me({ auth }: HttpContext) {
+  async me({ auth, response }: HttpContext) {
     const user = auth.use('api').user!
+
+    // Проверка на блокировку
+    if (user.blocked) {
+      // Удаляем все токены заблокированного пользователя
+      const tokens = await User.accessTokens.all(user)
+      await Promise.all(tokens.map(token => User.accessTokens.delete(user, token.identifier)))
+      return response.forbidden({
+        message: 'Ваш аккаунт заблокирован. Обратитесь к администратору',
+      })
+    }
 
     // Загрузка роли пользователя
     await user.load('role')
@@ -101,6 +121,7 @@ export default class AuthController {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
+        blocked: user.blocked,
         role: user.role,
       },
     }
