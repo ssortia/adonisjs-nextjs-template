@@ -78,9 +78,6 @@ export default function Home() {
           <Card style={{ textAlign: 'center' }}>
             <Space direction="vertical" size="large">
               <Title level={1}>Добро пожаловать, {user.fullName || user.email}!</Title>
-              <Paragraph style={{ fontSize: '16px', color: '#666' }}>
-                Вы успешно вошли в систему
-              </Paragraph>
             </Space>
           </Card>
 

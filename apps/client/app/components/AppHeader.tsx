@@ -1,6 +1,6 @@
 'use client';
 
-import { Layout, Menu, Button, Space } from 'antd';
+import { Layout, Menu, Button, Space, Switch } from 'antd';
 import { 
   UserOutlined, 
   TeamOutlined, 
@@ -10,11 +10,14 @@ import {
   UserAddOutlined, 
   SettingOutlined,
   BookOutlined,
-  KeyOutlined
+  KeyOutlined,
+  SunOutlined,
+  MoonOutlined
 } from '@ant-design/icons';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../hooks/useTheme';
 import type { MenuProps } from 'antd';
 
 const { Header } = Layout;
@@ -30,6 +33,7 @@ interface MenuItem {
 
 export default function AppHeader() {
   const { user, userPermissions, logout, isLoading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const hasPermission = (permission: string) => {
     return userPermissions.includes(permission);
@@ -125,12 +129,13 @@ export default function AppHeader() {
 
   return (
     <Header style={{ 
-      background: '#fff', 
+      background: 'var(--background)', 
       padding: '0 50px', 
-      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+      boxShadow: theme === 'dark' ? '0 2px 8px rgba(255,255,255,0.06)' : '0 2px 8px rgba(0,0,0,0.06)',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      borderBottom: theme === 'dark' ? '1px solid #303030' : '1px solid #f0f0f0'
     }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', marginRight: '40px' }}>
@@ -157,9 +162,17 @@ export default function AppHeader() {
       </div>
 
       <Space>
+        <Switch
+          checked={theme === 'dark'}
+          onChange={toggleTheme}
+          checkedChildren={<MoonOutlined />}
+          unCheckedChildren={<SunOutlined />}
+          title={theme === 'dark' ? 'Переключить на светлую тему' : 'Переключить на темную тему'}
+        />
+        
         {user && !isLoading ? (
           <>
-            <span style={{ color: '#666' }}>
+            <span style={{ color: theme === 'dark' ? '#ccc' : '#666' }}>
               Привет, {user.fullName || user.email}!
             </span>
             <Button 

@@ -28,11 +28,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh', background: 'var(--background)' }}>
       {showHeader && <AppHeader />}
       <Content style={{ 
         padding: showHeader ? '0' : '24px',
-        background: showHeader ? '#f0f2f5' : 'transparent'
+        background: 'transparent'
       }}>
         {children}
       </Content>

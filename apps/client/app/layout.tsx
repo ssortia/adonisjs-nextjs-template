@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { AuthProvider } from './hooks/useAuth';
 import ClientLayout from './components/ClientLayout';
+import ThemeProvider from './components/ThemeProvider';
+import ThemeScript from './components/ThemeScript';
 import './globals.css';
 
 const geistSans = Geist({
@@ -27,11 +29,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
+      <head>
+        <title>AdonisJS + Next.js Template</title>
+        <ThemeScript />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AntdRegistry>
-          <AuthProvider>
-            <ClientLayout>{children}</ClientLayout>
-          </AuthProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <ClientLayout>{children}</ClientLayout>
+            </AuthProvider>
+          </ThemeProvider>
         </AntdRegistry>
       </body>
     </html>

@@ -77,52 +77,6 @@ export default function UserProfile() {
               },
             ]}
           />
-
-          {userPermissions.length > 0 && (
-            <div>
-              <Title level={4}>Разрешения:</Title>
-              <List
-                size="small"
-                dataSource={userPermissions}
-                renderItem={(permission) => (
-                  <List.Item>
-                    <Tag>{permission}</Tag>
-                  </List.Item>
-                )}
-              />
-            </div>
-          )}
-
-          {isAdmin && (
-            <Card
-              type="inner"
-              title={
-                <span>
-                  <SettingOutlined style={{ marginRight: '8px' }} />
-                  Административные функции
-                </span>
-              }
-            >
-              <Space direction="vertical">
-                <Button type="link" href="/admin/users">
-                  Управление пользователями
-                </Button>
-                <Button type="link" href="/admin/roles">
-                  Управление ролями
-                </Button>
-              </Space>
-            </Card>
-          )}
-
-          <Button
-            type="primary"
-            danger
-            icon={<LogoutOutlined />}
-            onClick={logout}
-            size="large"
-          >
-            Выйти
-          </Button>
         </Space>
       </Card>
     </Space>
