@@ -27,13 +27,13 @@ export default function RegisterForm() {
 
     try {
       await register(values);
+      // Успешная регистрация - редирект на login происходит автоматически
     } catch (error: any) {
       if (error.status === 409) {
         setError('Пользователь с таким email уже существует');
       } else {
         setError(error.message || 'Произошла ошибка при регистрации');
       }
-    } finally {
       setIsLoading(false);
     }
   };

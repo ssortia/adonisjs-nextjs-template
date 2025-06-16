@@ -2,53 +2,51 @@ import { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import Role from '#models/role'
 import { loginValidator, registerValidator } from '#validators/auth_validator'
+import { EmailService } from '#services/email_service'
+import VerificationEmailNotification from '#mails/verification_email_notification'
+import { inject } from '@adonisjs/core'
 
+@inject()
 export default class AuthController {
+  constructor(protected mail: EmailService) {}
+
   /**
    * Регистрация нового пользователя
    */
   async register({ request, response }: HttpContext) {
-    // Валидация входящих данных
     const data = await request.validateUsing(registerValidator)
-
-    // Проверка на существование пользователя
     const existingUser = await User.findBy('email', data.email)
+
     if (existingUser) {
-      return response.conflict({
-        message: 'Пользователь с таким email уже существует',
-      })
+      return response.conflict({ message: 'Пользователь с таким email уже существует' })
     }
 
-    // Установка роли по умолчанию (обычный пользователь)
     const defaultRole = await Role.findByOrFail('name', 'user')
+    const emailVerificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 
-    // Создание пользователя
     const user = await User.create({
       fullName: data.fullName,
       email: data.email,
       password: data.password, // пароль будет хэширован автоматически благодаря AuthFinder
       roleId: defaultRole.id,
       blocked: false,
+      isEmailVerified: false,
+      emailVerificationToken,
     })
 
-    // Загрузка роли пользователя для ответа
+    await this.mail.send(new VerificationEmailNotification(user, emailVerificationToken))
     await user.load('role')
 
-    // Создание и возврат токена доступа
-    const token = await User.accessTokens.create(user)
-    console.log(token.identifier, token.value!.release())
-    // Не логируем токен, чтобы избежать [redacted]
-    // Несмотря на то что в логах показывается [redacted],
-    // реальное значение token.value сохраняется и возвращается клиенту
     return {
+      message: 'Регистрация успешна! Проверьте вашу почту для подтверждения аккаунта.',
       user: {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
         blocked: user.blocked,
+        isEmailVerified: user.isEmailVerified,
         role: user.role,
       },
-      token: token.value!.release(),
     }
   }
 
@@ -68,19 +66,22 @@ export default class AuthController {
       })
     }
 
-    // Загрузка роли пользователя
-    await user.load('role')
+    if (!user.isEmailVerified) {
+      return response.forbidden({
+        message: 'Пожалуйста, подтвердите ваш email адрес перед входом в систему',
+      })
+    }
 
-    // Создание токена доступа
+    await user.load('role')
     const token = await User.accessTokens.create(user)
 
-    // Возвращаем токен без логирования
     return {
       user: {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
         blocked: user.blocked,
+        isEmailVerified: user.isEmailVerified,
         role: user.role,
       },
       token: token.value!.release(),
@@ -103,9 +104,7 @@ export default class AuthController {
   async me({ auth, response }: HttpContext) {
     const user = auth.use('api').user!
 
-    // Проверка на блокировку
     if (user.blocked) {
-      // Удаляем все токены заблокированного пользователя
       const tokens = await User.accessTokens.all(user)
       await Promise.all(tokens.map(token => User.accessTokens.delete(user, token.identifier)))
       return response.forbidden({
@@ -113,7 +112,6 @@ export default class AuthController {
       })
     }
 
-    // Загрузка роли пользователя
     await user.load('role')
 
     return {
@@ -132,10 +130,7 @@ export default class AuthController {
    */
   async permissions({ auth, response }: HttpContext) {
     const user = auth.use('api').user!
-
-    // Загрузка роли и прав пользователя
     await user.load('role', (query) => {
-      // @ts-ignore
       query.preload('permissions')
     })
 

@@ -19,6 +19,10 @@ router
     router.post('/register', '#controllers/auth_controller.register')
     router.post('/login', '#controllers/auth_controller.login')
 
+    // Подтверждение email (не требует аутентификации)
+    router.get('/verify-email/:token', '#controllers/email_verifications_controller.verify')
+    router.post('/resend-verification', '#controllers/email_verifications_controller.resend')
+
     // Защищенные маршруты (требуют аутентификации)
     router
       .group(() => {

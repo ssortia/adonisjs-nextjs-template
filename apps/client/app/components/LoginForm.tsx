@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Form, Input, Button, Card, Typography, Alert, Space } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth';
@@ -16,8 +17,17 @@ interface FormData {
 export default function LoginForm() {
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string>('');
   const { login } = useAuth();
   const [form] = Form.useForm();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Проверяем, был ли пользователь перенаправлен после регистрации
+    if (searchParams.get('registered') === 'true') {
+      setSuccessMessage('Регистрация прошла успешно! На вашу почту отправлено письмо с подтверждением.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (values: FormData) => {
     setIsLoading(true);
@@ -47,6 +57,7 @@ export default function LoginForm() {
             Вход
           </Title>
 
+          {successMessage && <Alert message={successMessage} type="success" showIcon />}
           {error && <Alert message={error} type="error" showIcon />}
 
           <Form

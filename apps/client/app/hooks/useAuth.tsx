@@ -91,16 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Регистрация пользователя
   const register = async (data: any) => {
     try {
-      const response = await authApi.register(data);
-      authUtils.setAuth(response);
-      setUser(response.user);
-
-      // Получаем разрешения пользователя (по умолчанию роль "user")
-      const { permissions, role } = await authApi.getUserPermissions();
-      setUserPermissions(permissions);
-      setUserRole(role);
-
-      router.push('/');
+      await authApi.register(data);
+      router.push('/login?registered=true');
     } catch (error) {
       throw error;
     }
