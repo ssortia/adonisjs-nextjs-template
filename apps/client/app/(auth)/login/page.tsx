@@ -1,7 +1,7 @@
 'use client';
 
 import { Layout } from 'antd';
-import LoginForm from '../components/LoginForm';
+import LoginForm from '../../components/LoginForm';
 
 const { Content } = Layout;
 

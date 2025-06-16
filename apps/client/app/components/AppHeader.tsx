@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import type { MenuProps } from 'antd';
+import { JSX } from 'react';
 
 const { Header } = Layout;
 

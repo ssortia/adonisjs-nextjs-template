@@ -1,7 +1,7 @@
 'use client';
 
 import { Layout } from 'antd';
-import RegisterForm from '../components/RegisterForm';
+import RegisterForm from '../../components/RegisterForm';
 
 const { Content } = Layout;
 
