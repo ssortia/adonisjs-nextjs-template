@@ -40,6 +40,19 @@ router.resource('users', '#controllers/users_controller').use('*', middleware.re
 router.resource('permissions', '#controllers/permissions_controller').use('*', middleware.resource())
 router.resource('roles', '#controllers/roles_controller').use('*', middleware.resource())
 
+/**
+ * System information route (admin only)
+ */
+router
+  .group(() => {
+    router.get('/info', '#controllers/system_controller.info')
+  })
+  .prefix('/api/system')
+  .middleware([
+    middleware.auth({ guards: ['api'] }),
+    middleware.permission({ permissions: ['admin.access'] })
+  ])
+
 // Swagger Documentation
 router.get('/swagger', async () => {
   return AutoSwagger.default.docs(router.toJSON(), swagger)

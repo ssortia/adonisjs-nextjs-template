@@ -85,7 +85,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
    * Проверяет, имеет ли пользователь все указанные разрешения
    */
   async hasAllPermissions(permissions: string[]): Promise<boolean> {
-    if (!this.role) {
+    if (!this.roleId) {
       return false
     }
 
@@ -104,7 +104,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
    * Проверяет, имеет ли пользователь хотя бы одно из указанных разрешений
    */
   async hasAnyPermission(permissions: string[]): Promise<boolean> {
-    if (!this.role) {
+    if (!this.roleId) {
       return false
     }
 

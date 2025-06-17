@@ -3,9 +3,6 @@ FROM node:22-alpine AS development
 
 WORKDIR /app
 
-# Установка зависимостей для Adonis
-RUN apk add --no-cache python3 make g++ postgresql-client
-
 # Копируем package.json и lock файлы
 COPY package.json package-lock.json ./
 COPY apps/server/package.json ./apps/server/
