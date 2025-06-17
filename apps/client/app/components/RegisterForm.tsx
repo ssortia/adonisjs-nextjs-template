@@ -2,31 +2,25 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Form, Input, Button, Card, Typography, Alert, Space } from 'antd';
+import { Button, Card, Typography, Alert, Space } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useAuth } from '@/app/hooks/useAuth';
+import { registerSchema, type RegisterFormData } from '@/app/schemas/auth';
+import { PasswordField, TextField, ZodForm } from '@ssortia/antd-zod-bridge';
 
 const { Title } = Typography;
-
-interface FormData {
-  fullName: string;
-  email: string;
-  password: string;
-  passwordConfirmation: string;
-}
 
 export default function RegisterForm() {
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
-  const [form] = Form.useForm();
+  const { register: registerUser } = useAuth();
 
-  const handleSubmit = async (values: FormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     setError('');
 
     try {
-      await register(values);
+      await registerUser(data);
       // Успешная регистрация - редирект на login происходит автоматически
     } catch (error: any) {
       if (error.status === 409) {
@@ -48,91 +42,45 @@ export default function RegisterForm() {
 
           {error && <Alert message={error} type="error" showIcon />}
 
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            autoComplete="off"
-          >
-            <Form.Item
+          <ZodForm schema={registerSchema} onSubmit={onSubmit}>
+            <TextField
               name="fullName"
               label="Полное имя"
-              rules={[
-                { required: true, message: 'Имя обязательно для заполнения' },
-              ]}
-            >
-              <Input
-                prefix={<UserOutlined />}
-                placeholder="Введите полное имя"
-                size="large"
-              />
-            </Form.Item>
+              prefix={<UserOutlined />}
+              placeholder="Введите полное имя"
+            />
 
-            <Form.Item
+            <TextField
               name="email"
               label="Email"
-              rules={[
-                { required: true, message: 'Email обязателен для заполнения' },
-                { type: 'email', message: 'Некорректный формат email' },
-              ]}
-            >
-              <Input
-                prefix={<MailOutlined />}
-                placeholder="Введите email"
-                size="large"
-              />
-            </Form.Item>
+              prefix={<MailOutlined />}
+              placeholder="Введите email"
+            />
 
-            <Form.Item
+            <PasswordField
               name="password"
               label="Пароль"
-              rules={[
-                { required: true, message: 'Пароль обязателен для заполнения' },
-                { min: 6, message: 'Пароль должен содержать минимум 6 символов' },
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined />}
-                placeholder="Введите пароль"
-                size="large"
-              />
-            </Form.Item>
+              prefix={<LockOutlined />}
+              placeholder="Введите пароль"
+            />
 
-            <Form.Item
+            <PasswordField
               name="passwordConfirmation"
               label="Подтверждение пароля"
-              dependencies={['password']}
-              rules={[
-                { required: true, message: 'Подтвердите пароль' },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue('password') === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error('Пароли не совпадают'));
-                  },
-                }),
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined />}
-                placeholder="Подтвердите пароль"
-                size="large"
-              />
-            </Form.Item>
+              prefix={<LockOutlined />}
+              placeholder="Подтвердите пароль"
+            />
 
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={isLoading}
-                size="large"
-                style={{ width: '100%' }}
-              >
-                {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
-              </Button>
-            </Form.Item>
-          </Form>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={isLoading}
+              size="large"
+              style={{ width: '100%' }}
+            >
+              {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+            </Button>
+          </ZodForm>
 
           <div style={{ textAlign: 'center' }}>
             <Typography.Text type="secondary">

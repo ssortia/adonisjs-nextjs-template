@@ -9,17 +9,17 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!isLoading && user) {
       router.replace('/');
     }
-  }, [user, loading, router]);
+  }, [user, isLoading, router]);
 
   // Показываем детей только если пользователь не аутентифицирован
-  if (loading) {
+  if (isLoading) {
     return null; // или компонент загрузки
   }
 

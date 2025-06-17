@@ -129,7 +129,7 @@ export default function RolesPage() {
         onCancel={handleModalClose}
         footer={null}
         width={700}
-        destroyOnClose
+        destroyOnHidden
       >
         <RoleForm
           role={editingRole}

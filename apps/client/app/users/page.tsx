@@ -122,7 +122,7 @@ export default function UsersPage() {
         onCancel={handleModalClose}
         footer={null}
         width={500}
-        destroyOnClose
+        destroyOnHidden
       >
         <UserForm
           user={editingUser}

@@ -1,104 +1,82 @@
-import { Form, Input, Select, Space, Button, Checkbox } from 'antd';
-import type { User, Role, UserFormData } from '../types';
+import { Space, Button } from 'antd';
+import { ZodForm, TextField, PasswordField, SelectField, CheckboxField } from '@ssortia/antd-zod-bridge';
+import { userCreateSchema, userEditSchema, type UserCreateFormData, type UserEditFormData } from '@/app/schemas/user';
+import type { User, Role } from '../types';
 
 interface UserFormProps {
   user?: User | null;
   roles: Role[];
-  onSubmit: (values: UserFormData) => Promise<void>;
+  onSubmit: (values: UserCreateFormData | UserEditFormData) => Promise<void>;
   onCancel: () => void;
   loading?: boolean;
 }
 
 export default function UserForm({ user, roles, onSubmit, onCancel, loading = false }: UserFormProps) {
-  const [form] = Form.useForm();
   const isEditing = !!user;
+  const schema = isEditing ? userEditSchema : userCreateSchema;
 
-  const handleSubmit = async (values: UserFormData) => {
+  const defaultValues = isEditing
+    ? {
+        fullName: user?.fullName || '',
+        email: user?.email || '',
+        roleId: user?.roleId || undefined,
+        blocked: user?.blocked || false,
+      }
+    : {
+        blocked: false,
+      };
+
+  const handleSubmit = async (values: UserCreateFormData | UserEditFormData) => {
     try {
       await onSubmit(values);
-      form.resetFields();
     } catch (error) {
       // Error handling is done in the parent component
     }
   };
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleSubmit}
-      initialValues={
-        isEditing
-          ? {
-              fullName: user?.fullName,
-              email: user?.email,
-              roleId: user?.roleId,
-              blocked: user?.blocked || false,
-            }
-          : {
-              blocked: false,
-            }
-      }
-    >
-      <Form.Item
+    <ZodForm schema={schema} onSubmit={handleSubmit} defaultValues={defaultValues}>
+      <TextField
         name="fullName"
         label="Полное имя"
-        rules={[
-          { max: 255, message: 'Имя не должно превышать 255 символов' },
-        ]}
-      >
-        <Input placeholder="Введите полное имя" />
-      </Form.Item>
+        placeholder="Введите полное имя"
+      />
 
-      <Form.Item
+      <TextField
         name="email"
         label="Email"
-        rules={[
-          { required: true, message: 'Введите email' },
-          { type: 'email', message: 'Введите корректный email' },
-          { max: 255, message: 'Email не должен превышать 255 символов' },
-        ]}
-      >
-        <Input placeholder="Введите email" />
-      </Form.Item>
+        placeholder="Введите email"
+      />
 
       {!isEditing && (
-        <Form.Item
+        <PasswordField
           name="password"
           label="Пароль"
-          rules={[
-            { required: true, message: 'Введите пароль' },
-            { min: 6, message: 'Пароль должен быть не менее 6 символов' },
-            { max: 255, message: 'Пароль не должен превышать 255 символов' },
-          ]}
-        >
-          <Input.Password placeholder="Введите пароль" />
-        </Form.Item>
+          placeholder="Введите пароль"
+        />
       )}
 
-      <Form.Item
+      <SelectField
         name="roleId"
         label="Роль"
-      >
-        <Select placeholder="Выберите роль" allowClear>
-          {roles.map((role) => (
-            <Select.Option key={role.id} value={role.id}>
-              {role.name}
-              {role.description && ` - ${role.description}`}
-            </Select.Option>
-          ))}
-        </Select>
-      </Form.Item>
+        placeholder="Выберите роль"
+        allowClear
+        options={roles.map((role) => ({
+          value: role.id,
+          label: role.description ? `${role.name} - ${role.description}` : role.name
+        }))}
+      />
 
-      <Form.Item
-        label="Статус"
-        name="blocked"
-        valuePropName="checked"
-      >
-        <Checkbox>Заблокирован</Checkbox>
-      </Form.Item>
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: 8 }}>Статус</div>
+        <CheckboxField
+          name="blocked"
+        >
+          Заблокирован
+        </CheckboxField>
+      </div>
 
-      <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+      <div style={{ marginBottom: 0, textAlign: 'right' }}>
         <Space>
           <Button onClick={onCancel} disabled={loading}>
             Отмена
@@ -107,7 +85,7 @@ export default function UserForm({ user, roles, onSubmit, onCancel, loading = fa
             {isEditing ? 'Обновить' : 'Создать'}
           </Button>
         </Space>
-      </Form.Item>
-    </Form>
+      </div>
+    </ZodForm>
   );
 }

@@ -1,7 +1,7 @@
-import { Form, Input, Space, Button } from 'antd';
-import type { Permission, PermissionFormData } from '../types';
-
-const { TextArea } = Input;
+import { Space, Button } from 'antd';
+import { ZodForm, TextField, TextAreaField } from '@ssortia/antd-zod-bridge';
+import { permissionSchema, type PermissionFormData } from '@/app/schemas/permission';
+import type { Permission } from '../types';
 
 interface PermissionFormProps {
   permission?: Permission | null;
@@ -16,66 +16,42 @@ export default function PermissionForm({
   onCancel, 
   loading = false 
 }: PermissionFormProps) {
-  const [form] = Form.useForm();
   const isEditing = !!permission;
+  
+  const defaultValues = isEditing
+    ? {
+        name: permission?.name || '',
+        description: permission?.description || '',
+      }
+    : undefined;
 
   const handleSubmit = async (values: PermissionFormData) => {
     try {
       await onSubmit(values);
-      form.resetFields();
     } catch (error) {
       // Error handling is done in the parent component
     }
   };
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleSubmit}
-      initialValues={
-        isEditing
-          ? {
-              name: permission?.name,
-              description: permission?.description,
-            }
-          : undefined
-      }
-    >
-      <Form.Item
+    <ZodForm schema={permissionSchema} onSubmit={handleSubmit} defaultValues={defaultValues}>
+      <TextField
         name="name"
         label="Название разрешения"
-        rules={[
-          { required: true, message: 'Введите название разрешения' },
-          { max: 255, message: 'Название не должно превышать 255 символов' },
-          { 
-            pattern: /^[a-zA-Z0-9._-]+$/, 
-            message: 'Название может содержать только буквы, цифры, точки, подчеркивания и дефисы' 
-          },
-        ]}
-      >
-        <Input 
-          placeholder="Например: users.view, admin.access" 
-          disabled={isEditing} // Не позволяем изменять название при редактировании
-        />
-      </Form.Item>
+        placeholder="Например: users.view, admin.access"
+        disabled={isEditing}
+      />
 
-      <Form.Item
+      <TextAreaField
         name="description"
         label="Описание"
-        rules={[
-          { max: 500, message: 'Описание не должно превышать 500 символов' },
-        ]}
-      >
-        <TextArea 
-          placeholder="Описание разрешения (необязательно)"
-          rows={3}
-          maxLength={500}
-          showCount
-        />
-      </Form.Item>
+        placeholder="Описание разрешения (необязательно)"
+        rows={3}
+        maxLength={500}
+        showCount
+      />
 
-      <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+      <div style={{ marginBottom: 0, textAlign: 'right' }}>
         <Space>
           <Button onClick={onCancel} disabled={loading}>
             Отмена
@@ -84,7 +60,7 @@ export default function PermissionForm({
             {isEditing ? 'Обновить' : 'Создать'}
           </Button>
         </Space>
-      </Form.Item>
-    </Form>
+      </div>
+    </ZodForm>
   );
 }

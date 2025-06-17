@@ -127,7 +127,7 @@ export default function PermissionsPage() {
         onCancel={handleModalClose}
         footer={null}
         width={500}
-        destroyOnClose
+        destroyOnHidden
       >
         <PermissionForm
           permission={editingPermission}
