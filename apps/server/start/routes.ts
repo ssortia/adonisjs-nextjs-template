@@ -9,6 +9,8 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
+import AutoSwagger from 'adonis-autoswagger'
+import swagger from '#config/swagger'
 
 /**
  * Маршруты аутентификации
@@ -37,3 +39,13 @@ router
 router.resource('users', '#controllers/users_controller').use('*', middleware.resource())
 router.resource('permissions', '#controllers/permissions_controller').use('*', middleware.resource())
 router.resource('roles', '#controllers/roles_controller').use('*', middleware.resource())
+
+// Swagger Documentation
+router.get('/swagger', async () => {
+  return AutoSwagger.default.docs(router.toJSON(), swagger)
+})
+
+// Swagger UI
+router.get('/docs', async () => {
+  return AutoSwagger.default.ui('/swagger', swagger)
+})
