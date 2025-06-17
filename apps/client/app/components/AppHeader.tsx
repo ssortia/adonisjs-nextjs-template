@@ -104,7 +104,7 @@ export default function AppHeader() {
             .map(child => ({
               key: child.key,
               icon: child.icon,
-              label: <Link href={child.link}>{child.name}</Link>,
+              label: <Link href={child.link || "#"}>{child.name}</Link>,
             }));
 
           return {
@@ -119,7 +119,7 @@ export default function AppHeader() {
         return {
           key: item.key,
           icon: item.icon,
-          label: <Link href={item.link}>{item.name}</Link>,
+          label: <Link href={item.link || '#'}>{item.name}</Link>,
         };
       });
   };
