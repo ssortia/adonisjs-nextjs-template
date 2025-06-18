@@ -33,3 +33,9 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+/* Ant Design Calendar - Monday as first day of week */
+.ant-picker-calendar-date-content,
+.ant-picker-body {
+  --ant-picker-calendar-first-day-of-week: 1;
+}

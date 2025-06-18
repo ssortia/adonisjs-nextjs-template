@@ -366,7 +366,7 @@ const AuditLogsCard: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <RangePicker
               onChange={handleDateRangeChange}
-
+              format="DD.MM.YYYY"
               style={{ width: '100%' }}
               placeholder={['От', 'До']}
             />

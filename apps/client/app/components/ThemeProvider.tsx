@@ -1,6 +1,7 @@
 'use client';
 
 import { ConfigProvider, theme } from 'antd';
+import ruRU from 'antd/locale/ru_RU';
 import { ThemeContext, useThemeState } from '../hooks/useTheme';
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -15,7 +16,12 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
 
   return (
     <ThemeContext.Provider value={themeState}>
-      <ConfigProvider theme={antdTheme}>
+      <ConfigProvider 
+        theme={antdTheme} 
+        locale={ruRU}
+        componentSize="middle"
+        direction="ltr"
+      >
         <div style={{ 
           opacity: themeState.mounted ? 1 : 0, 
           transition: 'opacity 0.1s ease' 
