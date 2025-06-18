@@ -43,7 +43,7 @@ export default function AppHeader() {
   // Detect screen size
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 988);
     };
 
     handleResize(); // Check on mount
@@ -235,6 +235,8 @@ export default function AppHeader() {
                 background: 'transparent',
                 minWidth: '300px'
               }}
+              disabledOverflow
+              // overflowedIndicator={null}
             />
           )}
 
@@ -261,14 +263,14 @@ export default function AppHeader() {
           
           {user && !isLoading ? (
             <>
-              {!isMobile && (
-                <span style={{ 
-                  color: theme === 'dark' ? '#ccc' : '#666',
-                  fontSize: '14px' 
-                }}>
-                  Привет, {user.fullName || user.email}!
-                </span>
-              )}
+              {/*{!isMobile && (*/}
+              {/*  <span style={{ */}
+              {/*    color: theme === 'dark' ? '#ccc' : '#666',*/}
+              {/*    fontSize: '14px' */}
+              {/*  }}>*/}
+              {/*    Привет, {user.fullName || user.email}!*/}
+              {/*  </span>*/}
+              {/*)}*/}
               <Button 
                 type="text" 
                 icon={<LogoutOutlined />}

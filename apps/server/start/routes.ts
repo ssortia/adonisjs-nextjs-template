@@ -41,13 +41,20 @@ router.resource('permissions', '#controllers/permissions_controller').use('*', m
 router.resource('roles', '#controllers/roles_controller').use('*', middleware.resource())
 
 /**
- * System information route (admin only)
+ * Admin routes (admin only)
  */
 router
   .group(() => {
-    router.get('/info', '#controllers/system_controller.info')
+    // System information
+    router.get('/system/info', '#controllers/system_controller.info')
+    
+    // Audit logs
+    router.get('/audit-logs', '#controllers/audit_logs_controller.index')
+    router.get('/audit-logs/stats', '#controllers/audit_logs_controller.stats')
+    router.get('/audit-logs/actions', '#controllers/audit_logs_controller.actions')
+    router.get('/audit-logs/:id', '#controllers/audit_logs_controller.show')
   })
-  .prefix('/api/system')
+  .prefix('/api/admin')
   .middleware([
     middleware.auth({ guards: ['api'] }),
     middleware.permission({ permissions: ['admin.access'] })
