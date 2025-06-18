@@ -1,5 +1,5 @@
 import { Card, Col, Row, Typography } from 'antd';
-import { SafetyOutlined, SettingOutlined, TrophyOutlined, UserOutlined } from '@ant-design/icons';
+import { SafetyOutlined, SettingOutlined, StockOutlined, UserOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 
 const { Text } = Typography;
@@ -35,7 +35,7 @@ const QuickActionsCard: React.FC = () => {
         <Col xs={24} sm={12} md={6}>
           <Link href="/admin/audit" style={{ textDecoration: 'none' }}>
             <Card size="small" hoverable style={{ textAlign: 'center' }}>
-              <TrophyOutlined style={{ fontSize: '24px', color: '#722ed1', marginBottom: '8px' }} />
+              <StockOutlined style={{ fontSize: '24px', color: '#722ed1', marginBottom: '8px' }} />
               <div>
                 <Text strong>Аудит</Text>
                 <br />
@@ -45,14 +45,18 @@ const QuickActionsCard: React.FC = () => {
           </Link>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card size="small" hoverable style={{ textAlign: 'center' }}>
-            <SettingOutlined style={{ fontSize: '24px', color: '#fa8c16', marginBottom: '8px' }} />
-            <div>
-              <Text strong>Настройки</Text>
-              <br />
-              <Text type="secondary">Конфигурация системы</Text>
-            </div>
-          </Card>
+          <a href="http://localhost:8080/" target="_blank">
+            <Card size="small" hoverable style={{ textAlign: 'center' }}>
+              <SettingOutlined
+                style={{ fontSize: '24px', color: '#fa8c16', marginBottom: '8px' }}
+              />
+              <div>
+                <Text strong>Swagger</Text>
+                <br />
+                <Text type="secondary">Документация API</Text>
+              </div>
+            </Card>
+          </a>
         </Col>
       </Row>
     </Card>
