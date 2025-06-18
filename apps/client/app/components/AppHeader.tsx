@@ -222,6 +222,9 @@ export default function AppHeader() {
               width={isMobile ? 80 : 120}
               height={isMobile ? 16 : 25}
               priority
+              style={{
+                filter: theme === 'dark' ? 'invert(1)' : 'none'
+              }}
             />
           </Link>
           
@@ -315,6 +318,9 @@ export default function AppHeader() {
               width={100}
               height={20}
               priority
+              style={{
+                filter: theme === 'dark' ? 'invert(1)' : 'none'
+              }}
             />
             <Button
               type="text"
