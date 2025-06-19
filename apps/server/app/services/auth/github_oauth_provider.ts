@@ -2,16 +2,14 @@ import { inject } from '@adonisjs/core'
 import { HttpContext } from '@adonisjs/core/http'
 import type { GithubDriver } from '@adonisjs/ally/drivers/github'
 import { OAuthProvider, AuthenticationResult, OAuthUserData } from '#contracts/auth'
-import { UserRepository } from '#repositories/user_repository'
 import { TokenService } from '#services/token_service'
 import { UserBlockedException, OAuthException } from '#exceptions/auth_exceptions'
+import User from '#models/user'
+import Role from '#models/role'
 
 @inject()
 export class GitHubOAuthProvider implements OAuthProvider {
-  constructor(
-    private userRepository: UserRepository,
-    private tokenService: TokenService
-  ) {}
+  constructor(private tokenService: TokenService) {}
 
   async handleCallback(context: HttpContext): Promise<AuthenticationResult> {
     const { ally } = context
@@ -32,10 +30,10 @@ export class GitHubOAuthProvider implements OAuthProvider {
         provider: 'github',
       }
 
-      let user = await this.userRepository.findByGitHub(oauthUserData.id, oauthUserData.email)
+      let user = await this.findByGitHub(oauthUserData.id, oauthUserData.email)
 
       if (user) {
-        user = await this.userRepository.updateGitHubInfo(user, oauthUserData.id)
+        user = await this.updateGitHubInfo(user, oauthUserData.id)
       } else {
         user = await this.createUserFromOAuth(oauthUserData)
       }
@@ -70,14 +68,35 @@ export class GitHubOAuthProvider implements OAuthProvider {
     return null
   }
 
-  private async createUserFromOAuth(oauthData: OAuthUserData) {
-    return this.userRepository.create({
+  private async findByGitHub(githubId: string, email: string): Promise<User | null> {
+    return User.query().where('github_id', githubId).orWhere('email', email).preload('role').first()
+  }
+
+  private async updateGitHubInfo(user: User, githubId: string): Promise<User> {
+    if (!user.githubId) {
+      user.githubId = githubId
+      user.provider = 'github'
+      await user.save()
+    }
+    return user
+  }
+
+  private async createUserFromOAuth(oauthData: OAuthUserData): Promise<User> {
+    const defaultRole = await Role.findByOrFail('name', 'user')
+    const user = await User.create({
       fullName: oauthData.name || oauthData.nickName || 'GitHub User',
       email: oauthData.email,
+      password: Math.random().toString(36),
       githubId: oauthData.id,
       provider: oauthData.provider,
+      roleId: defaultRole.id,
+      blocked: false,
       isEmailVerified: true,
+      emailVerificationToken: undefined,
     })
+
+    await user.load('role')
+    return user
   }
 
   private validateUser(user: any): void {

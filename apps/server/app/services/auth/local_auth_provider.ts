@@ -1,13 +1,15 @@
 import { inject } from '@adonisjs/core'
 import User from '#models/user'
+import Role from '#models/role'
 import {
   AuthProvider,
   AuthenticationCredentials,
   AuthenticationResult,
   RegistrationData,
 } from '#contracts/auth'
-import { UserRepository } from '#repositories/user_repository'
 import { TokenService } from '#services/token_service'
+import { EmailService } from '#services/email_service'
+import VerificationEmailNotification from '#mails/verification_email_notification'
 import {
   UserBlockedException,
   EmailNotVerifiedException,
@@ -19,12 +21,11 @@ import {
 @inject()
 export class LocalAuthProvider implements AuthProvider {
   constructor(
-    private userRepository: UserRepository,
-    private tokenService: TokenService
+    private tokenService: TokenService,
+    private emailService: EmailService
   ) {}
 
   async authenticate(credentials: AuthenticationCredentials): Promise<AuthenticationResult> {
-    console.log(1)
     let user
 
     try {
@@ -42,16 +43,28 @@ export class LocalAuthProvider implements AuthProvider {
   }
 
   async register(data: RegistrationData): Promise<User> {
-    const existingUser = await this.userRepository.findByEmail(data.email)
+    const existingUser = await User.findBy('email', data.email)
     if (existingUser) {
       throw new EmailExistsException()
     }
 
-    return this.userRepository.create({
+    const defaultRole = await Role.findByOrFail('name', 'user')
+    const emailVerificationToken = this.generateEmailVerificationToken()
+
+    const user = await User.create({
       fullName: data.fullName,
       email: data.email,
       password: data.password,
+      roleId: defaultRole.id,
+      blocked: false,
+      isEmailVerified: false,
+      emailVerificationToken,
     })
+
+    await this.emailService.send(new VerificationEmailNotification(user, emailVerificationToken))
+
+    await user.load('role')
+    return user
   }
 
   async getUserPermissions(user: User): Promise<{ role: string; permissions: string[] }> {
@@ -77,5 +90,9 @@ export class LocalAuthProvider implements AuthProvider {
     if (!user.isEmailVerified) {
       throw new EmailNotVerifiedException()
     }
+  }
+
+  private generateEmailVerificationToken(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
   }
 }

@@ -1,5 +1,13 @@
 import User from '#models/user'
-import { UserResponse } from '#repositories/user_repository'
+
+export interface UserResponse {
+  id: number
+  email: string
+  fullName: string
+  blocked: boolean
+  isEmailVerified?: boolean
+  role: any
+}
 
 export class UserAdapter {
   formatUserResponse(user: User): UserResponse {
