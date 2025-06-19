@@ -24,6 +24,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => Promise<void>;
+  setToken: (token: string) => Promise<void>;
   hasPermission: (permission: string) => boolean;
   hasRole: (role: string) => boolean;
 }
@@ -116,6 +117,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setToken = async (token: string) => {
+    setIsLoading(true);
+    try {
+      authUtils.setToken(token);
+
+      const { user } = await authApi.getCurrentUser();
+      setUser(user);
+      const { permissions, role } = await authApi.getUserPermissions();
+      setUserPermissions(permissions);
+      setUserRole(role);
+    } catch (error) {
+      console.error('OAuth setToken error:', error);
+      authUtils.clearAuth();
+      setUser(null);
+      setUserPermissions([]);
+      setUserRole(null);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Проверка наличия разрешения
   const hasPermission = (permission: string) => userPermissions.includes(permission);
 
@@ -133,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        setToken,
         hasPermission,
         hasRole,
       }}

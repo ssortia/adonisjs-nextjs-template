@@ -47,8 +47,8 @@ export default class AuditLogService {
     })
     this.applyFilters(query, filters)
     this.applySorting(query, sortBy, sortOrder)
-    console.log(page, safeLimit)
     const auditLogs = await query.paginate(page, safeLimit)
+
     return {
       data: auditLogs.all().map(log => this.formatAuditLog(log)),
       meta: {
@@ -57,8 +57,8 @@ export default class AuditLogService {
         currentPage: auditLogs.currentPage,
         lastPage: auditLogs.lastPage,
         firstPage: auditLogs.firstPage,
-        hasNextPage: auditLogs.hasNextPages,
-        hasPrevPage: auditLogs.hasPrevPages,
+        hasNextPage: auditLogs.currentPage < auditLogs.lastPage,
+        hasPrevPage: auditLogs.currentPage > 1,
       }
     }
   }
@@ -133,11 +133,11 @@ export default class AuditLogService {
     }
 
     if (dateFrom) {
-      query.where('createdAt', '>=', DateTime.fromISO(dateFrom).startOf('day').toSQL())
+      query.where('createdAt', '>=', DateTime.fromISO(dateFrom).startOf('day').toSQL()!)
     }
 
     if (dateTo) {
-      query.where('createdAt', '<=', DateTime.fromISO(dateTo).endOf('day').toSQL())
+      query.where('createdAt', '<=', DateTime.fromISO(dateTo).endOf('day').toSQL()!)
     }
 
     if (search && search.trim()) {
@@ -215,7 +215,7 @@ export default class AuditLogService {
 
   private async getCountFromDate(dateFrom: DateTime): Promise<number> {
     const result = await AuditLog.query()
-      .where('createdAt', '>=', dateFrom.toSQL())
+      .where('createdAt', '>=', dateFrom.toSQL()!)
       .count('* as total')
     return Number(result[0].$extras.total)
   }

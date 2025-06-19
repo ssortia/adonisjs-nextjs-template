@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Button, Card, Typography, Alert, Space } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Divider, Space, Typography } from 'antd';
+import { GithubOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth';
-import { loginSchema, type LoginFormData } from '@/app/schemas/auth';
+import { type LoginFormData, loginSchema } from '@/app/schemas/auth';
 import { PasswordField, TextField, ZodForm } from '@ssortia/antd-zod-bridge';
 
 const { Title } = Typography;
@@ -14,6 +14,7 @@ const { Title } = Typography;
 export default function LoginForm() {
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string>('');
   const { login } = useAuth();
   const searchParams = useSearchParams();
@@ -21,7 +22,13 @@ export default function LoginForm() {
   useEffect(() => {
     // Проверяем, был ли пользователь перенаправлен после регистрации
     if (searchParams.get('registered') === 'true') {
-      setSuccessMessage('Регистрация прошла успешно! На вашу почту отправлено письмо с подтверждением.');
+      setSuccessMessage(
+        'Регистрация прошла успешно! На вашу почту отправлено письмо с подтверждением.',
+      );
+    }
+
+    if (searchParams.get('error') === 'oauth_failed') {
+      setError('Ошибка при авторизации через GitHub. Попробуйте еще раз.');
     }
   }, [searchParams]);
 
@@ -42,6 +49,14 @@ export default function LoginForm() {
       }
       setIsLoading(false);
     }
+  };
+
+  const handleGithubLogin = () => {
+    setIsGithubLoading(true);
+    setError('');
+
+    const backendUrl = 'http://localhost:3333';
+    window.location.href = `${backendUrl}/api/auth/github`;
   };
 
   return (
@@ -74,12 +89,27 @@ export default function LoginForm() {
               type="primary"
               htmlType="submit"
               loading={isLoading}
+              disabled={isLoading || isGithubLoading}
               size="large"
               style={{ width: '100%' }}
             >
               {isLoading ? 'Вход...' : 'Войти'}
             </Button>
           </ZodForm>
+
+          <Divider plain>или</Divider>
+
+          <Button
+            type="default"
+            icon={<GithubOutlined />}
+            size="large"
+            loading={isGithubLoading}
+            disabled={isLoading || isGithubLoading}
+            style={{ width: '100%' }}
+            onClick={handleGithubLogin}
+          >
+            {isGithubLoading ? 'Перенаправление на GitHub...' : 'Войти через GitHub'}
+          </Button>
 
           <div style={{ textAlign: 'center' }}>
             <Typography.Text type="secondary">

@@ -23,7 +23,6 @@ export default class AuditLogMiddleware {
       method: request.method(),
       url: request.url(),
       route: route?.pattern,
-      params: route?.params,
       query: request.qs(),
       body: this.sanitizeBody(request.body()),
       userAgent: request.header('user-agent'),

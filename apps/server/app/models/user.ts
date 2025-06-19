@@ -37,6 +37,12 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare emailVerificationToken: string | null
 
+  @column()
+  declare githubId: string | null
+
+  @column()
+  declare provider: string | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

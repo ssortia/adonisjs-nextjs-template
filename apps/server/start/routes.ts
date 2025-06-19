@@ -17,15 +17,13 @@ import swagger from '#config/swagger'
  */
 router
   .group(() => {
-    // Регистрация, вход (не требуют аутентификации)
     router.post('/register', '#controllers/auth_controller.register')
     router.post('/login', '#controllers/auth_controller.login')
-
-    // Подтверждение email (не требует аутентификации)
+    router.get('/github', '#controllers/oauth_controller.githubRedirect')
+    router.get('/github/callback', '#controllers/oauth_controller.githubCallback')
     router.get('/verify-email/:token', '#controllers/email_verifications_controller.verify')
     router.post('/resend-verification', '#controllers/email_verifications_controller.resend')
 
-    // Защищенные маршруты (требуют аутентификации)
     router
       .group(() => {
         router.post('/logout', '#controllers/auth_controller.logout')

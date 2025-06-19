@@ -45,9 +45,9 @@ export default class AuditLog extends BaseModel {
   })
 
   static byDateRange = scope((query, dateFrom: DateTime, dateTo?: DateTime) => {
-    query.where('createdAt', '>=', dateFrom.startOf('day').toSQL())
+    query.where('createdAt', '>=', dateFrom.startOf('day').toSQL()!)
     if (dateTo) {
-      query.where('createdAt', '<=', dateTo.endOf('day').toSQL())
+      query.where('createdAt', '<=', dateTo.endOf('day').toSQL()!)
     }
   })
 
@@ -56,8 +56,10 @@ export default class AuditLog extends BaseModel {
       builder
         .where('action', 'ilike', `%${searchTerm}%`)
         .orWhere('ip', 'ilike', `%${searchTerm}%`)
+        // @ts-ignore
         .orWhereHas('user', (userBuilder) => {
           userBuilder
+            // @ts-ignore
             .where('email', 'ilike', `%${searchTerm}%`)
             .orWhere('fullName', 'ilike', `%${searchTerm}%`)
         })

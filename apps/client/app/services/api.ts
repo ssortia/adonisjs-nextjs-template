@@ -147,6 +147,13 @@ export const authUtils = {
     }
   },
 
+  // Сохранение только токена (для OAuth)
+  setToken: (token: string): void => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('authToken', token);
+    }
+  },
+
   // Удаление данных авторизации
   clearAuth: (): void => {
     if (typeof window !== 'undefined') {

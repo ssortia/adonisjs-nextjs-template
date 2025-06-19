@@ -1,14 +1,20 @@
 import { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
-import Role from '#models/role'
 import { loginValidator, registerValidator } from '#validators/auth_validator'
-import { EmailService } from '#services/email_service'
-import VerificationEmailNotification from '#mails/verification_email_notification'
+import { AuthService } from '#services/auth_service'
 import { inject } from '@adonisjs/core'
+import { ValidationService } from '#services/validation_service'
+import { UserAdapter } from '#adapters/user_adapter'
+import { TokenService } from '#services/token_service'
 
 @inject()
 export default class AuthController {
-  constructor(protected mail: EmailService) {}
+  constructor(
+    protected authService: AuthService,
+    protected validationService: ValidationService,
+    protected userAdapter: UserAdapter,
+    protected tokenService: TokenService,
+    ) {}
 
   /**
    * @register
@@ -28,32 +34,11 @@ export default class AuthController {
       return response.conflict({ message: 'Пользователь с таким email уже существует' })
     }
 
-    const defaultRole = await Role.findByOrFail('name', 'user')
-    const emailVerificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-
-    const user = await User.create({
-      fullName: data.fullName,
-      email: data.email,
-      password: data.password, // пароль будет хэширован автоматически благодаря AuthFinder
-      roleId: defaultRole.id,
-      blocked: false,
-      isEmailVerified: false,
-      emailVerificationToken,
-    })
-
-    await this.mail.send(new VerificationEmailNotification(user, emailVerificationToken))
-    await user.load('role')
+    const user = await this.authService.register(data.fullName, data.email, data.password)
 
     return {
       message: 'Регистрация успешна! Проверьте вашу почту для подтверждения аккаунта.',
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        blocked: user.blocked,
-        isEmailVerified: user.isEmailVerified,
-        role: user.role,
-      },
+      user: this.userAdapter.formatUserResponse(user),
     }
   }
 
@@ -69,37 +54,33 @@ export default class AuthController {
    * @responseBody 400 - {"message": "Invalid credentials"}
    */
   async login({ request, response }: HttpContext) {
-    const { email, password } = await request.validateUsing(loginValidator)
+    try {
+      const { email, password } = await request.validateUsing(loginValidator)
 
-    // Поиск пользователя
-    const user = await User.verifyCredentials(email, password)
+      const user = await User.verifyCredentials(email, password)
+      
+      this.validationService.validateUserNotBlocked(user)
+      this.validationService.validateEmailVerified(user)
 
-    // Проверка на блокировку
-    if (user.blocked) {
-      return response.forbidden({
-        message: 'Ваш аккаунт заблокирован. Обратитесь к администратору',
-      })
-    }
+      await user.load('role')
+      const token = await this.tokenService.generateAccessToken(user)
 
-    if (!user.isEmailVerified) {
-      return response.forbidden({
-        message: 'Пожалуйста, подтвердите ваш email адрес перед входом в систему',
-      })
-    }
-
-    await user.load('role')
-    const token = await User.accessTokens.create(user)
-
-    return {
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        blocked: user.blocked,
-        isEmailVerified: user.isEmailVerified,
-        role: user.role,
-      },
-      token: token.value!.release(),
+      return {
+        user: this.userAdapter.formatUserResponse(user),
+        token,
+      }
+    } catch (error) {
+      if (error.message === 'USER_BLOCKED') {
+        return response.forbidden({
+          message: 'Ваш аккаунт заблокирован. Обратитесь к администратору',
+        })
+      }
+      if (error.message === 'EMAIL_NOT_VERIFIED') {
+        return response.forbidden({
+          message: 'Пожалуйста, подтвердите ваш email адрес перед входом в систему',
+        })
+      }
+      throw error
     }
   }
 
@@ -129,28 +110,11 @@ export default class AuthController {
    * @responseBody 401 - {"message": "Требуется аутентификация"}
    * @responseBody 403 - {"message": "Ваш аккаунт заблокирован. Обратитесь к администратору"}
    */
-  async me({ auth, response }: HttpContext) {
+  async me({ auth }: HttpContext) {
     const user = auth.use('api').user!
-
-    if (user.blocked) {
-      const tokens = await User.accessTokens.all(user)
-      await Promise.all(tokens.map(token => User.accessTokens.delete(user, token.identifier)))
-      return response.forbidden({
-        message: 'Ваш аккаунт заблокирован. Обратитесь к администратору',
-      })
-    }
-
     await user.load('role')
 
-    return {
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        blocked: user.blocked,
-        role: user.role,
-      },
-    }
+    return { user: this.userAdapter.formatUserResponse(user) }
   }
 
   /**

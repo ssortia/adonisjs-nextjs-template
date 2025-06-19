@@ -19,8 +19,10 @@
     "#controllers/*": "./app/controllers/*.js",
     "#exceptions/*": "./app/exceptions/*.js",
     "#models/*": "./app/models/*.js",
+    "#adapters/*": "./app/adapters/*.js",
     "#mails/*": "./app/mails/*.js",
     "#services/*": "./app/services/*.js",
+    "#repositories/*": "./app/repositories/*.js",
     "#listeners/*": "./app/listeners/*.js",
     "#events/*": "./app/events/*.js",
     "#middleware/*": "./app/middleware/*.js",
@@ -53,6 +55,7 @@
     "typescript": "~5.7"
   },
   "dependencies": {
+    "@adonisjs/ally": "^5.1.0",
     "@adonisjs/auth": "^9.3.1",
     "@adonisjs/core": "^6.17.2",
     "@adonisjs/cors": "^2.2.1",
