@@ -24,7 +24,6 @@ export default function RolesPage() {
     fetchRoles
   } = useRoles();
   const { permissions } = usePermissions();
-  console.log(permissions);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [searchText, setSearchText] = useState('');

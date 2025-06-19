@@ -99,11 +99,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Ошибка при выходе:', error);
     } finally {
       authUtils.clearAuth();
-      setUser(null);
-      setUserPermissions([]);
-      setUserRole(null);
-      setIsLoading(false);
       router.push('/login');
+
+      // Отложенный вызов setState, чтобы избежать ререндера компонентов,
+      // зависящих от этих переменных, до редиректа
+      setTimeout(() => {
+        setUser(null);
+        setUserPermissions([]);
+        setUserRole(null);
+        setIsLoading(false);
+      }, 50);
     }
   };
 

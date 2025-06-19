@@ -71,14 +71,6 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   const data = isJson ? await response.json() : null;
 
   if (!response.ok) {
-    if (response.status === 403 && endpoint !== '/api/auth/login') {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login?blocked=true';
-      }
-    }
-    
     throw new ApiError(
       data?.message || 'Произошла ошибка при выполнении запроса',
       response.status,
@@ -123,12 +115,14 @@ export const authUtils = {
     if (typeof window !== 'undefined') {
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+      document.cookie = `authToken=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
     }
   },
 
   setToken: (token: string): void => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('authToken', token);
+      document.cookie = `authToken=${token}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
     }
   },
 
@@ -136,6 +130,7 @@ export const authUtils = {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
+      document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
   },
 
