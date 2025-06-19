@@ -3,6 +3,7 @@ import User from '#models/user'
 import { EmailService } from '#services/email_service'
 import VerificationEmailNotification from '#mails/verification_email_notification'
 import { UserNotFoundException } from '#exceptions/auth_exceptions'
+import { InvalidTokenException } from '#exceptions/business_exceptions'
 
 @inject()
 export class EmailVerificationService {
@@ -10,6 +11,7 @@ export class EmailVerificationService {
 
   async sendVerificationEmail(email: string): Promise<void> {
     const user = await User.findBy('email', email)
+
     if (!user) {
       throw new UserNotFoundException()
     }
@@ -27,8 +29,9 @@ export class EmailVerificationService {
 
   async verifyEmail(token: string): Promise<User> {
     const user = await User.findBy('emailVerificationToken', token)
+
     if (!user) {
-      throw new Error('Invalid verification token')
+      throw new InvalidTokenException('Verification token')
     }
 
     user.isEmailVerified = true

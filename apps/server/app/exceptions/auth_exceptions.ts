@@ -1,86 +1,91 @@
-import { Exception } from '@adonisjs/core/exceptions'
-import { HttpContext } from '@adonisjs/core/http'
+import { BusinessException } from '#exceptions/business_exceptions'
 
-export class UserBlockedException extends Exception {
+/**
+ * User blocked exception
+ */
+export class UserBlockedException extends BusinessException {
   static status = 403
   static code = 'E_USER_BLOCKED'
 
-  async handle(error: this, ctx: HttpContext) {
-    ctx.response.status(error.status).send({
-      message: 'Ваш аккаунт заблокирован. Обратитесь к администратору',
-      code: error.code,
-    })
+  constructor(options?: ErrorOptions) {
+    super('Ваш аккаунт заблокирован. Обратитесь к администратору', options)
   }
+
+  readonly code = 'E_USER_BLOCKED'
+  readonly status = 403
 }
 
-export class EmailNotVerifiedException extends Exception {
+/**
+ * Email not verified exception
+ */
+export class EmailNotVerifiedException extends BusinessException {
   static status = 403
   static code = 'E_EMAIL_NOT_VERIFIED'
 
-  async handle(error: this, ctx: HttpContext) {
-    ctx.response.status(error.status).send({
-      message: 'Пожалуйста, подтвердите ваш email адрес перед входом в систему',
-      code: error.code,
-    })
+  constructor(options?: ErrorOptions) {
+    super('Пожалуйста, подтвердите ваш email адрес перед входом в систему', options)
   }
+
+  readonly code = 'E_EMAIL_NOT_VERIFIED'
+  readonly status = 403
 }
 
-export class EmailExistsException extends Exception {
+/**
+ * Email already exists exception
+ */
+export class EmailExistsException extends BusinessException {
   static status = 409
   static code = 'E_EMAIL_EXISTS'
 
-  async handle(error: this, ctx: HttpContext) {
-    ctx.response.status(error.status).send({
-      message: 'Пользователь с таким email уже существует',
-      code: error.code,
-    })
+  constructor(options?: ErrorOptions) {
+    super('Пользователь с таким email уже существует', options)
   }
+
+  readonly code = 'E_EMAIL_EXISTS'
+  readonly status = 409
 }
 
-export class UserNotFoundException extends Exception {
+/**
+ * User not found exception
+ */
+export class UserNotFoundException extends BusinessException {
   static status = 404
   static code = 'E_USER_NOT_FOUND'
 
-  async handle(error: this, ctx: HttpContext) {
-    ctx.response.status(error.status).send({
-      message: 'Пользователь не найден',
-      code: error.code,
-    })
+  constructor(options?: ErrorOptions) {
+    super('Пользователь не найден', options)
   }
+
+  readonly code = 'E_USER_NOT_FOUND'
+  readonly status = 404
 }
 
-export class InvalidCredentialsException extends Exception {
-  static status = 400
-  static code = 'E_INVALID_CREDENTIALS'
-
-  async handle(error: this, ctx: HttpContext) {
-    ctx.response.status(error.status).send({
-      message: 'Неверные учетные данные',
-      code: error.code,
-    })
-  }
-}
-
-export class OAuthException extends Exception {
+/**
+ * OAuth authentication exception
+ */
+export class OAuthException extends BusinessException {
   static status = 400
   static code = 'E_OAUTH_ERROR'
 
-  async handle(error: this, ctx: HttpContext) {
-    ctx.response.status(error.status).send({
-      message: error.message || 'Ошибка OAuth аутентификации',
-      code: error.code,
-    })
+  constructor(message: string = 'Ошибка OAuth аутентификации', options?: ErrorOptions) {
+    super(message, options)
   }
+
+  readonly code = 'E_OAUTH_ERROR'
+  readonly status = 400
 }
 
-export class UserNoRoleException extends Exception {
+/**
+ * User has no role exception
+ */
+export class UserNoRoleException extends BusinessException {
   static status = 403
   static code = 'E_USER_NO_ROLE'
 
-  async handle(error: this, ctx: HttpContext) {
-    ctx.response.status(error.status).send({
-      message: 'У пользователя отсутствует роль',
-      code: error.code,
-    })
+  constructor(options?: ErrorOptions) {
+    super('У пользователя отсутствует роль', options)
   }
+
+  readonly code = 'E_USER_NO_ROLE'
+  readonly status = 403
 }

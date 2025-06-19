@@ -9,7 +9,6 @@ import {
 import { UserRepository } from '#repositories/user_repository'
 import { TokenService } from '#services/token_service'
 import {
-  InvalidCredentialsException,
   UserBlockedException,
   EmailNotVerifiedException,
   EmailExistsException,
@@ -24,21 +23,14 @@ export class LocalAuthProvider implements AuthProvider {
   ) {}
 
   async authenticate(credentials: AuthenticationCredentials): Promise<AuthenticationResult> {
-    try {
-      const user = await User.verifyCredentials(credentials.email, credentials.password)
+    const user = await User.verifyCredentials(credentials.email, credentials.password)
 
-      this.validateUser(user)
+    this.validateUser(user)
 
-      await user.load('role')
-      const token = await this.tokenService.generateAccessToken(user)
+    await user.load('role')
+    const token = await this.tokenService.generateAccessToken(user)
 
-      return { user, token }
-    } catch (error) {
-      if (error.code === 'E_INVALID_CREDENTIALS') {
-        throw new InvalidCredentialsException()
-      }
-      throw error
-    }
+    return { user, token }
   }
 
   async register(data: RegistrationData): Promise<User> {

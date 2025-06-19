@@ -3,6 +3,7 @@ import Role from '#models/role'
 import type { HttpContext } from '@adonisjs/core/http'
 import { RoleService } from '#services/role_service'
 import { inject } from '@adonisjs/core'
+import { createRoleValidator, updateRoleValidator } from '#validators/role_validator'
 
 /**
  * @tag Roles
@@ -73,16 +74,6 @@ export default class RolesController extends ResourceController<typeof Role> {
    * @responseBody 403 - {"message": "Недостаточно прав доступа", "required": {"permissions": ["roles.delete"], "mode": "all"}}
    */
 
-  protected applyPreloads(query: any) {
-    return query.preload('permissions')
-  }
-
-  protected applySearch(query: any, search: string) {
-    return query.where((builder: any) => {
-      builder.whereILike('name', `%${search}%`).orWhereILike('description', `%${search}%`)
-    })
-  }
-
   /**
    * @store
    * @tag Roles
@@ -113,5 +104,23 @@ export default class RolesController extends ResourceController<typeof Role> {
   async destroy({ params, response }: HttpContext) {
     await this.roleService.deleteRole(Number(params.id))
     return response.noContent()
+  }
+
+  protected applyPreloads(query: any) {
+    return query.preload('permissions')
+  }
+
+  protected applySearch(query: any, search: string) {
+    return query.where((builder: any) => {
+      builder.whereILike('name', `%${search}%`).orWhereILike('description', `%${search}%`)
+    })
+  }
+
+  protected async validateStoreData(request: any) {
+    return request.validateUsing(createRoleValidator)
+  }
+
+  protected async validateUpdateData(request: any) {
+    return request.validateUsing(updateRoleValidator)
   }
 }

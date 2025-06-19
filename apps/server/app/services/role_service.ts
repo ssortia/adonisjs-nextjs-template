@@ -1,5 +1,6 @@
 import { inject } from '@adonisjs/core'
 import Role from '#models/role'
+import { ResourceInUseException } from '#exceptions/business_exceptions'
 
 export interface CreateRoleData {
   name: string
@@ -44,7 +45,7 @@ export class RoleService {
 
     const userCount = await role.related('users').query().count('* as total')
     if (userCount[0].$extras.total > 0) {
-      throw new Error('Cannot delete role with assigned users')
+      throw new ResourceInUseException('Role', 'assigned users')
     }
 
     await role.related('permissions').detach()
