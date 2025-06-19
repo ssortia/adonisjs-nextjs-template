@@ -62,7 +62,7 @@ export default class SystemInfoService {
     return {
       commit: process.env.GIT_COMMIT || 'unknown',
       branch: process.env.GIT_BRANCH || 'unknown',
-      commitDate: process.env.GIT_COMMIT_DATE || 'unknown'
+      commitDate: process.env.GIT_COMMIT_DATE || 'unknown',
     }
   }
 
@@ -70,7 +70,7 @@ export default class SystemInfoService {
     return {
       buildTime: process.env.BUILD_TIME || new Date().toISOString(),
       version: process.env.APP_VERSION || '1.0.0',
-      nodeVersion: process.version
+      nodeVersion: process.version,
     }
   }
 
@@ -81,7 +81,7 @@ export default class SystemInfoService {
       PORT: process.env.PORT,
       HOST: process.env.HOST,
       TZ: process.env.TZ,
-      NODE_VERSION: process.version
+      NODE_VERSION: process.version,
     }
 
     return {
@@ -89,7 +89,7 @@ export default class SystemInfoService {
       nodeEnv: process.env.NODE_ENV,
       platform: os.platform(),
       arch: os.arch(),
-      hostname: os.hostname()
+      hostname: os.hostname(),
     }
   }
 
@@ -105,7 +105,7 @@ export default class SystemInfoService {
     return {
       uptime: {
         process: Math.floor(process.uptime()),
-        system: Math.floor(os.uptime())
+        system: Math.floor(os.uptime()),
       },
       memory: {
         total: totalMemory,
@@ -116,8 +116,8 @@ export default class SystemInfoService {
           rss: memoryUsage.rss,
           heapTotal: memoryUsage.heapTotal,
           heapUsed: memoryUsage.heapUsed,
-          external: memoryUsage.external
-        }
+          external: memoryUsage.external,
+        },
       },
       cpu: {
         count: cpuCount,
@@ -125,10 +125,10 @@ export default class SystemInfoService {
         loadAverage: {
           '1min': Math.round(loadAverage[0] * 100) / 100,
           '5min': Math.round(loadAverage[1] * 100) / 100,
-          '15min': Math.round(loadAverage[2] * 100) / 100
+          '15min': Math.round(loadAverage[2] * 100) / 100,
         },
-        loadPercent: Math.min(Math.round((loadAverage[0] / cpuCount) * 100), 100)
-      }
+        loadPercent: Math.min(Math.round((loadAverage[0] / cpuCount) * 100), 100),
+      },
     }
   }
 
@@ -138,7 +138,7 @@ export default class SystemInfoService {
       build: this.getBuildInfo(),
       environment: this.getEnvironmentInfo(),
       system: this.getSystemMetrics(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
   }
 }

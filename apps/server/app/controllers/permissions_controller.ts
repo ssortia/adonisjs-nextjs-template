@@ -81,9 +81,7 @@ export default class PermissionsController extends ResourceController<typeof Per
 
   protected applySearch(query: any, search: string) {
     return query.where((builder: any) => {
-      builder
-        .whereILike('name', `%${search}%`)
-        .orWhereILike('description', `%${search}%`)
+      builder.whereILike('name', `%${search}%`).orWhereILike('description', `%${search}%`)
     })
   }
 }

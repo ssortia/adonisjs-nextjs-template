@@ -1,20 +1,15 @@
 import { HttpContext } from '@adonisjs/core/http'
-import User from '#models/user'
 import { loginValidator, registerValidator } from '#validators/auth_validator'
 import { AuthService } from '#services/auth_service'
 import { inject } from '@adonisjs/core'
-import { ValidationService } from '#services/validation_service'
 import { UserAdapter } from '#adapters/user_adapter'
-import { TokenService } from '#services/token_service'
 
 @inject()
 export default class AuthController {
   constructor(
-    protected authService: AuthService,
-    protected validationService: ValidationService,
-    protected userAdapter: UserAdapter,
-    protected tokenService: TokenService,
-    ) {}
+    private authService: AuthService,
+    private userAdapter: UserAdapter
+  ) {}
 
   /**
    * @register
@@ -26,14 +21,8 @@ export default class AuthController {
    * @responseBody 409 - {"message": "Пользователь с таким email уже существует"}
    * @responseBody 422 - {"message": "Validation failed", "code": "E_VALIDATION_ERROR", "status": 422, "errors": [{"message": "The email field must be a valid email address", "rule": "email", "field": "email"}]}
    */
-  async register({ request, response }: HttpContext) {
+  async register({ request }: HttpContext) {
     const data = await request.validateUsing(registerValidator)
-    const existingUser = await User.findBy('email', data.email)
-
-    if (existingUser) {
-      return response.conflict({ message: 'Пользователь с таким email уже существует' })
-    }
-
     const user = await this.authService.register(data.fullName, data.email, data.password)
 
     return {
@@ -53,34 +42,13 @@ export default class AuthController {
    * @responseBody 422 - {"message": "Validation failed", "code": "E_VALIDATION_ERROR", "status": 422, "errors": [{"message": "The email field must be a valid email address", "rule": "email", "field": "email"}]}
    * @responseBody 400 - {"message": "Invalid credentials"}
    */
-  async login({ request, response }: HttpContext) {
-    try {
-      const { email, password } = await request.validateUsing(loginValidator)
+  async login({ request }: HttpContext) {
+    const { email, password } = await request.validateUsing(loginValidator)
+    const { user, token } = await this.authService.login(email, password)
 
-      const user = await User.verifyCredentials(email, password)
-      
-      this.validationService.validateUserNotBlocked(user)
-      this.validationService.validateEmailVerified(user)
-
-      await user.load('role')
-      const token = await this.tokenService.generateAccessToken(user)
-
-      return {
-        user: this.userAdapter.formatUserResponse(user),
-        token,
-      }
-    } catch (error) {
-      if (error.message === 'USER_BLOCKED') {
-        return response.forbidden({
-          message: 'Ваш аккаунт заблокирован. Обратитесь к администратору',
-        })
-      }
-      if (error.message === 'EMAIL_NOT_VERIFIED') {
-        return response.forbidden({
-          message: 'Пожалуйста, подтвердите ваш email адрес перед входом в систему',
-        })
-      }
-      throw error
+    return {
+      user: this.userAdapter.formatUserResponse(user),
+      token,
     }
   }
 
@@ -94,8 +62,9 @@ export default class AuthController {
    * @responseBody 401 - {"message": "Требуется аутентификация"}
    */
   async logout({ auth, response }: HttpContext) {
-    // @ts-ignore
-    await auth.use('api').logout()
+    const user = auth.use('api').user!
+
+    await this.authService.logout(user)
 
     return response.noContent()
   }
@@ -127,21 +96,8 @@ export default class AuthController {
    * @responseBody 401 - {"message": "Требуется аутентификация"}
    * @responseBody 403 - {"message": "У пользователя отсутствует роль"}
    */
-  async permissions({ auth, response }: HttpContext) {
+  async permissions({ auth }: HttpContext) {
     const user = auth.use('api').user!
-    await user.load('role', (query) => {
-      query.preload('permissions')
-    })
-
-    if (!user.role) {
-      return response.forbidden({
-        message: 'У пользователя отсутствует роль',
-      })
-    }
-
-    return {
-      role: user.role.name,
-      permissions: user.role.permissions.map((p) => p.name),
-    }
+    return this.authService.getUserPermissions(user)
   }
 }

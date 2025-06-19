@@ -1,9 +1,12 @@
 import ResourceController from '#controllers/resource_controller'
 import User from '#models/user'
+import { createUserValidator, updateUserValidator } from '#validators/user_validator'
+import { inject } from '@adonisjs/core'
 
 /**
  * @tag Users
  */
+@inject()
 export default class UsersController extends ResourceController<typeof User> {
   protected model = User
 
@@ -79,6 +82,10 @@ export default class UsersController extends ResourceController<typeof User> {
    * @responseBody 403 - {"message": "Недостаточно прав доступа", "required": {"permissions": ["users.delete"], "mode": "all"}}
    */
 
+  protected applyPreloads(query: any) {
+    return query.preload('role')
+  }
+
   protected applySearch(query: any, search: string) {
     return query.where((builder: any) => {
       builder
@@ -87,6 +94,14 @@ export default class UsersController extends ResourceController<typeof User> {
         .orWhereHas('role', (roleBuilder: any) => {
           roleBuilder.whereILike('name', `%${search}%`)
         })
-    }).preload('role')
+    })
+  }
+
+  protected async validateStoreData(request: any) {
+    return request.validateUsing(createUserValidator)
+  }
+
+  protected async validateUpdateData(request: any) {
+    return request.validateUsing(updateUserValidator)
   }
 }

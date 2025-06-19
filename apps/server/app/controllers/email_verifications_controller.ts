@@ -1,53 +1,25 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import User from '#models/user'
-import { EmailService } from '#services/email_service'
-import VerificationEmailNotification from '#mails/verification_email_notification'
+import { EmailVerificationService } from '#services/email_verification_service'
+import { inject } from '@adonisjs/core'
 
+@inject()
 export default class EmailVerificationsController {
-  async verify({ params, response }: HttpContext) {
+  constructor(private emailVerificationService: EmailVerificationService) {}
+  async verify({ params }: HttpContext) {
     const token = params.token
-    const user = await User.findBy('emailVerificationToken', token)
-    if (!user) {
-      return response.badRequest({
-        message: 'Недействительный или истекший токен подтверждения',
-      })
-    }
+    await this.emailVerificationService.verifyEmail(token)
 
-    user.isEmailVerified = true
-    user.emailVerificationToken = null
-    await user.save()
-
-    return response.ok({
+    return {
       message: 'Email успешно подтвержден',
-    })
+    }
   }
 
-  async resend({ request, response }: HttpContext) {
+  async resend({ request }: HttpContext) {
     const { email } = request.only(['email'])
+    await this.emailVerificationService.sendVerificationEmail(email)
 
-    const user = await User.findBy('email', email)
-    if (!user) {
-      return response.badRequest({
-        message: 'Пользователь с таким email не найден',
-      })
-    }
-
-    if (user.isEmailVerified) {
-      return response.badRequest({
-        message: 'Email уже подтвержден',
-      })
-    }
-
-    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-    user.emailVerificationToken = token
-    await user.save()
-
-    const emailService = new EmailService()
-    const verificationEmail = new VerificationEmailNotification(user, token)
-    await emailService.send(verificationEmail)
-
-    return response.ok({
+    return {
       message: 'Письмо для подтверждения отправлено повторно',
-    })
+    }
   }
 }

@@ -8,10 +8,6 @@ export class TokenService {
 
   async revokeAllUserTokens(user: User): Promise<void> {
     const tokens = await User.accessTokens.all(user)
-    await Promise.all(tokens.map(token => User.accessTokens.delete(user, token.identifier)))
-  }
-
-  async revokeUserToken(user: User, tokenIdentifier: string): Promise<void> {
-    await User.accessTokens.delete(user, tokenIdentifier)
+    await Promise.all(tokens.map((token) => User.accessTokens.delete(user, token.identifier)))
   }
 }

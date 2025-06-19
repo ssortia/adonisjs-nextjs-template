@@ -16,7 +16,6 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
 
       let query = this.model.query()
 
-      // Apply preloads before any other operations
       query = this.applyPreloads(query)
 
       if (search) {
@@ -27,7 +26,7 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
       query = this.applySorting(query, request)
 
       const records = await query.paginate(page, limit)
-      
+
       return response.ok(records)
     } catch (error) {
       return response.badRequest({ message: 'Failed to fetch records', error: error.message })
@@ -41,9 +40,8 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
   async store({ request, response }: HttpContext) {
     try {
       const data = await this.validateStoreData(request)
-      
       const record = await this.model.create(data)
-      
+
       return response.created(record)
     } catch (error) {
       return response.badRequest({ message: 'Failed to create record', error: error.message })
@@ -57,7 +55,7 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
   async show({ params, response }: HttpContext) {
     try {
       const record = await this.findRecord(params.id)
-      
+
       return response.ok(record)
     } catch (error) {
       return response.notFound({ message: 'Record not found', error: error.message })
@@ -72,10 +70,10 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
     try {
       const record = await this.findRecord(params.id)
       const data = await this.validateUpdateData(request)
-      
+
       record.merge(data)
       await record.save()
-      
+
       return response.ok(record)
     } catch (error) {
       if (error.message.includes('not found')) {
@@ -92,9 +90,9 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
   async destroy({ params, response }: HttpContext) {
     try {
       const record = await this.findRecord(params.id)
-      
+
       await record.delete()
-      
+
       return response.noContent()
     } catch (error) {
       if (error.message.includes('not found')) {
@@ -110,7 +108,7 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
   protected async findRecord(id: string | number) {
     let query = this.model.query().where('id', id)
     query = this.applyPreloads(query)
-    return await query.firstOrFail()
+    return query.firstOrFail()
   }
 
   /**
@@ -140,7 +138,7 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
   protected applySorting(query: any, request: any) {
     const sortBy = request.input('sortBy', 'id')
     const sortOrder = request.input('sortOrder', 'desc')
-    
+
     return query.orderBy(sortBy, sortOrder)
   }
 

@@ -1,12 +1,19 @@
 import ResourceController from '#controllers/resource_controller'
 import Role from '#models/role'
 import type { HttpContext } from '@adonisjs/core/http'
+import { RoleService } from '#services/role_service'
+import { inject } from '@adonisjs/core'
 
 /**
  * @tag Roles
  */
+@inject()
 export default class RolesController extends ResourceController<typeof Role> {
   protected model = Role
+
+  constructor(private roleService: RoleService) {
+    super()
+  }
 
   /**
    * @index
@@ -72,9 +79,7 @@ export default class RolesController extends ResourceController<typeof Role> {
 
   protected applySearch(query: any, search: string) {
     return query.where((builder: any) => {
-      builder
-        .whereILike('name', `%${search}%`)
-        .orWhereILike('description', `%${search}%`)
+      builder.whereILike('name', `%${search}%`).orWhereILike('description', `%${search}%`)
     })
   }
 
@@ -92,46 +97,21 @@ export default class RolesController extends ResourceController<typeof Role> {
    * @responseBody 422 - {"message": "Validation failed", "code": "E_VALIDATION_ERROR", "status": 422, "errors": [{"message": "The name field must be at least 2 characters", "rule": "minLength", "field": "name"}]}
    */
   async store({ request, response }: HttpContext) {
-    try {
-      const data = await this.validateStoreData(request)
-      const { permissions, ...roleData } = data
-      
-      const role = await this.model.create(roleData)
-      
-      if (permissions && Array.isArray(permissions)) {
-        await role.related('permissions').sync(permissions)
-      }
+    const data = await this.validateStoreData(request)
+    const role = await this.roleService.createRole(data)
 
-      await role.load('permissions')
-      
-      return response.created(role)
-    } catch (error) {
-      return response.badRequest({ message: 'Failed to create record', error: error.message })
-    }
+    return response.created(role)
   }
 
   async update({ params, request, response }: HttpContext) {
-    try {
-      const role = await this.findRecord(params.id)
-      const data = await this.validateUpdateData(request)
-      const { permissions, ...roleData } = data
-      
-      role.merge(roleData)
-      await role.save()
+    const data = await this.validateUpdateData(request)
+    const role = await this.roleService.updateRole(Number(params.id), data)
 
-      if (permissions !== undefined && Array.isArray(permissions)) {
-        await role.related('permissions').sync(permissions)
-      }
-
-      await role.load('permissions')
-      
-      return response.ok(role)
-    } catch (error) {
-      if (error.message.includes('not found')) {
-        return response.notFound({ message: 'Record not found', error: error.message })
-      }
-      return response.badRequest({ message: 'Failed to update record', error: error.message })
-    }
+    return response.ok(role)
   }
 
+  async destroy({ params, response }: HttpContext) {
+    await this.roleService.deleteRole(Number(params.id))
+    return response.noContent()
+  }
 }

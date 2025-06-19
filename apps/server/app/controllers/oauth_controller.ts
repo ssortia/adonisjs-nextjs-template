@@ -1,10 +1,11 @@
 import { HttpContext } from '@adonisjs/core/http'
-import { OAuthService } from '#services/oauth_service'
+import { AuthService } from '#services/auth_service'
+import { AuthProviderType } from '#contracts/auth'
 import { inject } from '@adonisjs/core'
 
 @inject()
 export default class OAuthController {
-  constructor(protected oauthService: OAuthService) {}
+  constructor(private authService: AuthService) {}
 
   /**
    * @githubRedirect
@@ -14,7 +15,7 @@ export default class OAuthController {
    * @responseBody 302 - Redirect to GitHub
    */
   async githubRedirect(context: HttpContext) {
-    return this.oauthService.getGitHubRedirectUrl(context)
+    return this.authService.getOAuthRedirectUrl(AuthProviderType.GITHUB, context)
   }
 
   /**
@@ -27,16 +28,9 @@ export default class OAuthController {
    */
   async githubCallback(context: HttpContext) {
     const { response } = context
-    const result = await this.oauthService.handleGitHubCallback(context)
+    const { token } = await this.authService.handleOAuthCallback(AuthProviderType.GITHUB, context)
 
-    if (!result.success) {
-      return response.badRequest({ message: result.error })
-    }
-
-    if (result.redirectUrl) {
-      return response.redirect(result.redirectUrl)
-    }
-
-    return response.badRequest({ message: 'OAuth authentication failed' })
+    const redirectUrl = `${process.env.CLIENT_URL}/auth/callback?token=${token}`
+    return response.redirect(redirectUrl)
   }
 }

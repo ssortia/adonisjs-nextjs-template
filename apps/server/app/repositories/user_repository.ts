@@ -27,19 +27,15 @@ export class UserRepository {
   constructor(protected emailService: EmailService) {}
 
   async findByEmail(email: string): Promise<User | null> {
-    return await User.findBy('email', email)
+    return User.findBy('email', email)
   }
 
   async findByGitHub(githubId: string, email: string): Promise<User | null> {
-    return await User.query()
-      .where('github_id', githubId)
-      .orWhere('email', email)
-      .preload('role')
-      .first()
+    return User.query().where('github_id', githubId).orWhere('email', email).preload('role').first()
   }
 
   async verifyCredentials(email: string, password: string): Promise<User> {
-    return await User.verifyCredentials(email, password)
+    return User.verifyCredentials(email, password)
   }
 
   async create(data: CreateUserData): Promise<User> {
@@ -73,17 +69,6 @@ export class UserRepository {
       await user.save()
     }
     return user
-  }
-
-  formatUserResponse(user: User): UserResponse {
-    return {
-      id: user.id,
-      email: user.email,
-      fullName: user.fullName || '',
-      blocked: user.blocked,
-      isEmailVerified: user.isEmailVerified,
-      role: user.role,
-    }
   }
 
   private generateEmailVerificationToken(): string {

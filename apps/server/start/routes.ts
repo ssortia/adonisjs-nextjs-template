@@ -21,8 +21,8 @@ router
     router.post('/login', '#controllers/auth_controller.login')
     router.get('/github', '#controllers/oauth_controller.githubRedirect')
     router.get('/github/callback', '#controllers/oauth_controller.githubCallback')
-    router.get('/verify-email/:token', '#controllers/email_verifications_controller.verify')
-    router.post('/resend-verification', '#controllers/email_verifications_controller.resend')
+    router.get('/verify-email/:token', '#controllers/email_verification_controller.verify')
+    router.post('/resend-verification', '#controllers/email_verification_controller.resend')
 
     router
       .group(() => {
@@ -35,7 +35,9 @@ router
   .prefix('/api/auth')
 
 router.resource('users', '#controllers/users_controller').use('*', middleware.resource())
-router.resource('permissions', '#controllers/permissions_controller').use('*', middleware.resource())
+router
+  .resource('permissions', '#controllers/permissions_controller')
+  .use('*', middleware.resource())
 router.resource('roles', '#controllers/roles_controller').use('*', middleware.resource())
 
 /**
@@ -45,7 +47,7 @@ router
   .group(() => {
     // System information
     router.get('/system/info', '#controllers/system_controller.info')
-    
+
     // Audit logs
     router.get('/audit-logs', '#controllers/audit_logs_controller.index')
     router.get('/audit-logs/stats', '#controllers/audit_logs_controller.stats')
@@ -55,7 +57,7 @@ router
   .prefix('/api/admin')
   .middleware([
     middleware.auth({ guards: ['api'] }),
-    middleware.permission({ permissions: ['admin.access'] })
+    middleware.permission({ permissions: ['admin.access'] }),
   ])
 
 // Swagger Documentation

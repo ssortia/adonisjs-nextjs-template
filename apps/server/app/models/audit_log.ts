@@ -20,7 +20,7 @@ export default class AuditLog extends BaseModel {
   declare ip: string | null
 
   @column()
-  declare type: "info" | "warning" | "error"
+  declare type: 'info' | 'warning' | 'error'
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

@@ -1,7 +1,7 @@
 import { BaseMail } from '@adonisjs/mail'
 import User from '#models/user'
 import { Edge } from 'edge.js'
-import { join } from 'path'
+import { join } from 'node:path'
 
 export default class VerificationEmailNotification extends BaseMail {
   from = process.env.SMTP_USERNAME

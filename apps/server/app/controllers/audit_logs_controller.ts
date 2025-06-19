@@ -18,12 +18,12 @@ export default class AuditLogsController {
 
       const sort = {
         sortBy: request.input('sortBy', 'createdAt'),
-        sortOrder: request.input('sortOrder', 'desc')
+        sortOrder: request.input('sortOrder', 'desc'),
       }
 
       const pagination = {
         page: request.input('page', 1),
-        limit: request.input('limit', 20)
+        limit: request.input('limit', 20),
       }
       const result = await this.auditLogService.getAuditLogs(filters, sort, pagination)
 
@@ -32,7 +32,7 @@ export default class AuditLogsController {
       console.error('Audit logs fetch error:', error)
       return response.internalServerError({
         message: 'Failed to fetch audit logs',
-        error: error.message
+        error: error.message,
       })
     }
   }
@@ -43,7 +43,7 @@ export default class AuditLogsController {
       return response.ok(auditLog)
     } catch (error) {
       return response.notFound({
-        message: 'Audit log not found'
+        message: 'Audit log not found',
       })
     }
   }
@@ -56,7 +56,7 @@ export default class AuditLogsController {
     } catch (error) {
       return response.internalServerError({
         message: 'Failed to fetch audit logs stats',
-        error: error.message
+        error: error.message,
       })
     }
   }
@@ -68,7 +68,7 @@ export default class AuditLogsController {
     } catch (error) {
       return response.internalServerError({
         message: 'Failed to fetch actions',
-        error: error.message
+        error: error.message,
       })
     }
   }

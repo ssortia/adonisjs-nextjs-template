@@ -1,55 +1,42 @@
-import { UserRepository } from '#repositories/user_repository'
-import { ValidationService } from '#services/validation_service'
-import { TokenService } from '#services/token_service'
 import { inject } from '@adonisjs/core'
 import User from '#models/user'
+import { AuthManager } from '#services/auth/auth_manager'
+import { AuthProviderType } from '#contracts/auth'
+import { TokenService } from '#services/token_service'
 
 @inject()
 export class AuthService {
   constructor(
-    protected userRepository: UserRepository,
-    protected validationService: ValidationService,
-    protected tokenService: TokenService
+    private authManager: AuthManager,
+    private tokenService: TokenService
   ) {}
 
-  async login(email: string, password: string): Promise<{ user: User; token: string }> {
-    const user = await this.userRepository.verifyCredentials(email, password)
-
-    this.validationService.validateUserNotBlocked(user)
-    this.validationService.validateEmailVerified(user)
-
-    await user.load('role')
-    const token = await this.tokenService.generateAccessToken(user)
-
-    return { user, token }
+  async login(email: string, password: string) {
+    const provider = this.authManager.getAuthProvider(AuthProviderType.LOCAL)
+    return provider.authenticate({ email, password })
   }
 
   async register(fullName: string, email: string, password: string): Promise<User> {
-    await this.validationService.validateEmailNotExists(email)
-
-    return await this.userRepository.create({
-      fullName,
-      email,
-      password,
-    })
+    const provider = this.authManager.getAuthProvider(AuthProviderType.LOCAL)
+    return provider.register({ fullName, email, password })
   }
 
   async getUserPermissions(user: User): Promise<{ role: string; permissions: string[] }> {
-    await user.load('role', (query) => {
-      query.preload('permissions')
-    })
-
-    if (!user.role) {
-      throw new Error('USER_NO_ROLE')
-    }
-
-    return {
-      role: user.role.name,
-      permissions: user.role.permissions.map((p) => p.name),
-    }
+    const provider = this.authManager.getAuthProvider(AuthProviderType.LOCAL)
+    return provider.getUserPermissions(user)
   }
 
-  async logout(): Promise<void> {
-    // Logout will be handled by the auth middleware/guard
+  async handleOAuthCallback(providerType: AuthProviderType, context: any) {
+    const provider = this.authManager.getOAuthProvider(providerType)
+    return provider.handleCallback(context)
+  }
+
+  async getOAuthRedirectUrl(providerType: AuthProviderType, context: any) {
+    const provider = this.authManager.getOAuthProvider(providerType)
+    return provider.getRedirectUrl(context)
+  }
+
+  async logout(user: User): Promise<void> {
+    await this.tokenService.revokeAllUserTokens(user)
   }
 }

@@ -34,8 +34,8 @@ export interface AuditLogStats {
 
 export default class AuditLogService {
   async getAuditLogs(
-    filters: AuditLogFilters = {}, 
-    sort: AuditLogSort = {}, 
+    filters: AuditLogFilters = {},
+    sort: AuditLogSort = {},
     pagination: AuditLogPagination = {}
   ) {
     const { page = 1, limit = 20 } = pagination
@@ -50,7 +50,7 @@ export default class AuditLogService {
     const auditLogs = await query.paginate(page, safeLimit)
 
     return {
-      data: auditLogs.all().map(log => this.formatAuditLog(log)),
+      data: auditLogs.all().map((log) => this.formatAuditLog(log)),
       meta: {
         total: auditLogs.total,
         perPage: auditLogs.perPage,
@@ -59,7 +59,7 @@ export default class AuditLogService {
         firstPage: auditLogs.firstPage,
         hasNextPage: auditLogs.currentPage < auditLogs.lastPage,
         hasPrevPage: auditLogs.currentPage > 1,
-      }
+      },
     }
   }
 
@@ -77,23 +77,16 @@ export default class AuditLogService {
   async getStats(period: 'day' | 'week' | 'month' = 'day'): Promise<AuditLogStats> {
     const dateFrom = this.getPeriodStartDate(period)
 
-    const [
-      totalLogs,
-      infoLogs,
-      warningLogs,
-      errorLogs,
-      periodLogs,
-      topActions,
-      topUsers
-    ] = await Promise.all([
-      this.getTotalCount(),
-      this.getCountByType('info'),
-      this.getCountByType('warning'),
-      this.getCountByType('error'),
-      this.getCountFromDate(dateFrom),
-      this.getTopActions(5),
-      this.getTopUsers(5)
-    ])
+    const [totalLogs, infoLogs, warningLogs, errorLogs, periodLogs, topActions, topUsers] =
+      await Promise.all([
+        this.getTotalCount(),
+        this.getCountByType('info'),
+        this.getCountByType('warning'),
+        this.getCountByType('error'),
+        this.getCountFromDate(dateFrom),
+        this.getTopActions(5),
+        this.getTopUsers(5),
+      ])
 
     return {
       totals: {
@@ -101,10 +94,10 @@ export default class AuditLogService {
         info: infoLogs,
         warning: warningLogs,
         error: errorLogs,
-        period: periodLogs
+        period: periodLogs,
       },
       topActions,
-      topUsers
+      topUsers,
     }
   }
 
@@ -114,7 +107,7 @@ export default class AuditLogService {
       .distinct('action')
       .orderBy('action', 'asc')
 
-    return actions.map(item => item.action)
+    return actions.map((item) => item.action)
   }
 
   private applyFilters(query: any, filters: AuditLogFilters) {
@@ -156,7 +149,7 @@ export default class AuditLogService {
 
   private applySorting(query: any, sortBy: string, sortOrder: string) {
     const allowedSortFields = ['createdAt', 'type', 'action', 'userId', 'ip']
-    
+
     if (allowedSortFields.includes(sortBy)) {
       query.orderBy(sortBy, sortOrder === 'asc' ? 'asc' : 'desc')
     } else {
@@ -178,17 +171,19 @@ export default class AuditLogService {
     return {
       id: log.id,
       userId: log.userId,
-      user: log.user ? {
-        id: log.user.id,
-        email: log.user.email,
-        fullName: log.user.fullName
-      } : null,
+      user: log.user
+        ? {
+            id: log.user.id,
+            email: log.user.email,
+            fullName: log.user.fullName,
+          }
+        : null,
       action: log.action,
       type: log.type,
       ip: log.ip,
       metadata: safeMetadata,
       createdAt: log.createdAt.toISO(),
-      formattedDate: log.createdAt.toFormat('dd.MM.yyyy HH:mm:ss')
+      formattedDate: log.createdAt.toFormat('dd.MM.yyyy HH:mm:ss'),
     }
   }
 
@@ -228,13 +223,15 @@ export default class AuditLogService {
       .orderBy('count', 'desc')
       .limit(limit)
 
-    return actions.map(item => ({
+    return actions.map((item) => ({
       action: item.action,
-      count: Number(item.$extras.count)
+      count: Number(item.$extras.count),
     }))
   }
 
-  private async getTopUsers(limit: number): Promise<Array<{ userId: number; user: any; count: number }>> {
+  private async getTopUsers(
+    limit: number
+  ): Promise<Array<{ userId: number; user: any; count: number }>> {
     const users = await AuditLog.query()
       .select('userId')
       .whereNotNull('userId')
@@ -246,14 +243,16 @@ export default class AuditLogService {
       .orderBy('count', 'desc')
       .limit(limit)
 
-    return users.map(item => ({
+    return users.map((item) => ({
       userId: item.userId!,
-      user: item.user ? {
-        id: item.user.id,
-        email: item.user.email,
-        fullName: item.user.fullName
-      } : null,
-      count: Number(item.$extras.count)
+      user: item.user
+        ? {
+            id: item.user.id,
+            email: item.user.email,
+            fullName: item.user.fullName,
+          }
+        : null,
+      count: Number(item.$extras.count),
     }))
   }
 }

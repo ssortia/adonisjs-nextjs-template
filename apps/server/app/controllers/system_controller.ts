@@ -13,7 +13,7 @@ export default class SystemController {
     } catch (error) {
       return response.internalServerError({
         message: 'Failed to retrieve system information',
-        error: error.message
+        error: error.message,
       })
     }
   }

@@ -15,11 +15,10 @@ export default class extends BaseSchema {
         .onDelete('CASCADE')
         .nullable()
 
-
-      table.string("action").notNullable()
-      table.jsonb("metadata")
-      table.string("ip")
-      table.enum("type", ["info", "warning", "error"]).defaultTo("info")
+      table.string('action').notNullable()
+      table.jsonb('metadata')
+      table.string('ip')
+      table.enum('type', ['info', 'warning', 'error']).defaultTo('info')
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

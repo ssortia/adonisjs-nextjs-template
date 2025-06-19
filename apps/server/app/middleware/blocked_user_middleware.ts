@@ -9,8 +9,8 @@ export default class BlockedUserMiddleware {
     if (user && user.blocked) {
       // Удаляем все токены заблокированного пользователя
       const tokens = await User.accessTokens.all(user)
-      await Promise.all(tokens.map(token => User.accessTokens.delete(user, token.identifier)))
-      
+      await Promise.all(tokens.map((token) => User.accessTokens.delete(user, token.identifier)))
+
       return response.forbidden({
         message: 'Ваш аккаунт заблокирован. Обратитесь к администратору',
       })
