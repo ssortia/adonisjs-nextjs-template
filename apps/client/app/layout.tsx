@@ -6,6 +6,7 @@ import ClientLayout from './components/ClientLayout';
 import ThemeProvider from './components/ThemeProvider';
 import ThemeScript from './components/ThemeScript';
 import './globals.css';
+import { App } from 'antd';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -36,9 +37,11 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AntdRegistry>
           <ThemeProvider>
-            <AuthProvider>
-              <ClientLayout>{children}</ClientLayout>
-            </AuthProvider>
+            <App>
+              <AuthProvider>
+                <ClientLayout>{children}</ClientLayout>
+              </AuthProvider>
+            </App>
           </ThemeProvider>
         </AntdRegistry>
       </body>

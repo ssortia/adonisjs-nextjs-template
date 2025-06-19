@@ -21,9 +21,6 @@ export abstract class BusinessException extends Exception {
  * Resource in use exception (cannot be deleted)
  */
 export class ResourceInUseException extends BusinessException {
-  static status = 400
-  static code = 'E_RESOURCE_IN_USE'
-
   constructor(
     resource: string = 'Resource',
     dependency: string = 'other records',
@@ -40,11 +37,20 @@ export class ResourceInUseException extends BusinessException {
  * Invalid token exception
  */
 export class InvalidTokenException extends BusinessException {
-  static status = 400
-  static code = 'E_INVALID_TOKEN'
-
   constructor(tokenType: string = 'Token', options?: ErrorOptions) {
     super(`${tokenType} is invalid or expired`, options)
+  }
+
+  readonly code = 'E_INVALID_TOKEN'
+  readonly status = 400
+}
+
+/**
+ * Invalid token exception
+ */
+export class ConstraintException extends BusinessException {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options)
   }
 
   readonly code = 'E_INVALID_TOKEN'

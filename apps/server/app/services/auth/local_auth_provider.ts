@@ -13,6 +13,7 @@ import {
   EmailNotVerifiedException,
   EmailExistsException,
   UserNoRoleException,
+  InvalidCredentialsException,
 } from '#exceptions/auth_exceptions'
 
 @inject()
@@ -23,7 +24,14 @@ export class LocalAuthProvider implements AuthProvider {
   ) {}
 
   async authenticate(credentials: AuthenticationCredentials): Promise<AuthenticationResult> {
-    const user = await User.verifyCredentials(credentials.email, credentials.password)
+    console.log(1)
+    let user
+
+    try {
+      user = await User.verifyCredentials(credentials.email, credentials.password)
+    } catch (error) {
+      throw new InvalidCredentialsException()
+    }
 
     this.validateUser(user)
 

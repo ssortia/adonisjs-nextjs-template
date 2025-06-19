@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { App } from 'antd';
 import api from '@/app/services/api';
 
 export interface SystemInfo {
@@ -51,6 +52,7 @@ export interface SystemInfo {
 }
 
 export const useSystemInfo = (autoRefresh = true) => {
+  const { message } = App.useApp();
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,13 +64,13 @@ export const useSystemInfo = (autoRefresh = true) => {
       console.log("success", response);
       setSystemInfo(response);
     } catch (err: any) {
-      console.log("error");
-      setError(err.response?.data?.message || 'Failed to fetch system info');
-      console.error('Failed to fetch system info:', err);
+      const errorMessage = (err as Error)?.message || 'Failed to fetch system info';
+      setError(errorMessage);
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [message]);
 
   useEffect(() => {
     fetchSystemInfo();

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { message } from 'antd';
+import { App } from 'antd';
 import api from '../services/api';
 import type { Permission, PermissionFormData } from '../types';
 
@@ -14,6 +14,7 @@ interface PermissionsResponse {
 }
 
 export const usePermissions = () => {
+  const { message } = App.useApp();
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentSearch, setCurrentSearch] = useState('');
@@ -57,8 +58,7 @@ export const usePermissions = () => {
         });
       }
     } catch (error) {
-      message.error('Ошибка при загрузке разрешений');
-      console.error('Error fetching permissions:', error);
+      message.error((error as Error)?.message || 'Ошибка при загрузке разрешений');
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ export const usePermissions = () => {
       message.success('Разрешение создано');
       await fetchPermissions(pagination.current, pagination.pageSize, currentSearch);
     } catch (error) {
-      message.error('Ошибка при создании разрешения');
+      message.error((error as Error)?.message || 'Ошибка при создании разрешения');
       throw error;
     }
   };
@@ -81,7 +81,7 @@ export const usePermissions = () => {
       message.success('Разрешение обновлено');
       await fetchPermissions(pagination.current, pagination.pageSize, currentSearch);
     } catch (error) {
-      message.error('Ошибка при обновлении разрешения');
+      message.error((error as Error)?.message || 'Ошибка при обновлении разрешения');
       throw error;
     }
   };
@@ -92,7 +92,7 @@ export const usePermissions = () => {
       message.success('Разрешение удалено');
       await fetchPermissions(pagination.current, pagination.pageSize, currentSearch);
     } catch (error) {
-      message.error('Ошибка при удалении разрешения');
+      message.error((error as Error)?.message || 'Ошибка при удалении разрешения');
       throw error;
     }
   };

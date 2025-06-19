@@ -51,4 +51,8 @@ export class RoleService {
     await role.related('permissions').detach()
     await role.delete()
   }
+
+  async getRoleByName(name: string) {
+    return Role.query().where('name', name).first()
+  }
 }

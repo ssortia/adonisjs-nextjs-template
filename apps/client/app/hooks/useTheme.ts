@@ -23,12 +23,10 @@ export const useThemeState = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Проверяем сохраненную тему в localStorage
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
       setThemeState(savedTheme);
     } else {
-      // Если нет сохраненной темы, используем системную
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       setThemeState(systemTheme);
     }
@@ -39,7 +37,6 @@ export const useThemeState = () => {
     setThemeState(newTheme);
     localStorage.setItem('theme', newTheme);
     
-    // Обновляем CSS переменные
     if (newTheme === 'dark') {
       document.documentElement.style.setProperty('--background', '#141414');
       document.documentElement.style.setProperty('--foreground', '#ffffff');

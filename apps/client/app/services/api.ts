@@ -51,43 +51,30 @@ export class ApiError extends Error {
   }
 }
 
-// Выполнить запрос к API с проверкой на ошибки
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_URL}${endpoint}`;
 
-  // Установка заголовков по умолчанию
   const headers = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
   };
 
-  // Добавление токена авторизации, если он есть в localStorage
   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
   if (token) {
     // @ts-ignore
     headers.Authorization = `Bearer ${token}`;
   }
 
-  // Выполнение запроса
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-
-  // Если ответ не в формате JSON, вернуть null
+  const response = await fetch(url, { ...options, headers });
   const contentType = response.headers.get('content-type');
   const isJson = contentType && contentType.includes('application/json');
   const data = isJson ? await response.json() : null;
 
-  // Если ответ не успешный, выбросить ошибку
   if (!response.ok) {
-    // Специальная обработка для блокировки пользователя только для существующих токенов
-    if (response.status === 403 && data?.message?.includes('заблокирован') && endpoint !== '/api/auth/login') {
-      // Очищаем данные авторизации при блокировке только если это не попытка входа
+    if (response.status === 403 && endpoint !== '/api/auth/login') {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
-        // Перенаправляем на страницу входа
         window.location.href = '/login?blocked=true';
       }
     }
@@ -107,39 +94,31 @@ interface UserPermissions {
   permissions: string[];
 }
 
-// API методы для авторизации
 export const authApi = {
-  // Регистрация нового пользователя
   register: (data: RegisterData): Promise<AuthResponse> =>
     fetchApi<AuthResponse>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  // Вход пользователя
   login: (data: LoginData): Promise<AuthResponse> =>
     fetchApi<AuthResponse>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  // Выход пользователя
   logout: (): Promise<void> =>
     fetchApi<void>('/api/auth/logout', {
       method: 'POST',
     }),
 
-  // Получение информации о текущем пользователе
   getCurrentUser: (): Promise<{ user: User }> => fetchApi<{ user: User }>('/api/auth/me'),
 
-  // Получение разрешений пользователя
   getUserPermissions: (): Promise<UserPermissions> =>
     fetchApi<UserPermissions>('/api/auth/permissions'),
 };
 
-// Утилиты для работы с авторизацией
 export const authUtils = {
-  // Сохранение данных авторизации
   setAuth: (data: AuthResponse): void => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('authToken', data.token);
@@ -147,14 +126,12 @@ export const authUtils = {
     }
   },
 
-  // Сохранение только токена (для OAuth)
   setToken: (token: string): void => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('authToken', token);
     }
   },
 
-  // Удаление данных авторизации
   clearAuth: (): void => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('authToken');
@@ -162,7 +139,6 @@ export const authUtils = {
     }
   },
 
-  // Проверка, авторизован ли пользователь
   isAuthenticated: (): boolean => {
     if (typeof window !== 'undefined') {
       return !!localStorage.getItem('authToken');
@@ -170,7 +146,6 @@ export const authUtils = {
     return false;
   },
 
-  // Получение текущего пользователя из localStorage
   getCurrentUser: (): User | null => {
     if (typeof window !== 'undefined') {
       const userJson = localStorage.getItem('user');
@@ -180,7 +155,6 @@ export const authUtils = {
   },
 };
 
-// Основные API методы для CRUD операций
 const api = {
   get: <T>(endpoint: string): Promise<T> => fetchApi<T>(endpoint),
   post: <T>(endpoint: string, data?: any): Promise<T> => 

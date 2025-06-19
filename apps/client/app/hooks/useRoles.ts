@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { message } from 'antd';
 import api from '../services/api';
 import type { Role, RoleFormData } from '../types';
+import { App } from 'antd';
 
 interface RolesResponse {
   data: Role[];
-  meta?: {
+  meta: {
     total: number;
     perPage: number;
     currentPage: number;
@@ -14,6 +14,7 @@ interface RolesResponse {
 }
 
 export const useRoles = () => {
+  const { message } = App.useApp();
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentSearch, setCurrentSearch] = useState('');
@@ -38,27 +39,14 @@ export const useRoles = () => {
 
       const response = await api.get<RolesResponse>(`/roles?${params.toString()}`);
 
-      // Handle both paginated and non-paginated responses
-      if (response.meta) {
-        setRoles(response.data || []);
-        setPagination({
-          current: response.meta.currentPage,
-          pageSize: response.meta.perPage,
-          total: response.meta.total,
-        });
-      } else {
-        // Fallback for non-paginated response
-        const rolesData = Array.isArray(response) ? response : response.data || [];
-        setRoles(rolesData);
-        setPagination({
-          current: 1,
-          pageSize: rolesData.length,
-          total: rolesData.length,
-        });
-      }
+      setRoles(response.data || []);
+      setPagination({
+        current: response.meta.currentPage,
+        pageSize: response.meta.perPage,
+        total: response.meta.total,
+      });
     } catch (error) {
-      message.error('Ошибка при загрузке ролей');
-      console.error('Error fetching roles:', error);
+      message.error((error as Error)?.message || 'Ошибка при загрузке ролей');
     } finally {
       setLoading(false);
     }
@@ -70,8 +58,7 @@ export const useRoles = () => {
       message.success('Роль создана');
       await fetchRoles(pagination.current, pagination.pageSize, currentSearch);
     } catch (error) {
-      message.error('Ошибка при создании роли');
-      throw error;
+      message.error((error as Error)?.message || 'Ошибка при создании роли');
     }
   };
 
@@ -81,8 +68,7 @@ export const useRoles = () => {
       message.success('Роль обновлена');
       await fetchRoles(pagination.current, pagination.pageSize, currentSearch);
     } catch (error) {
-      message.error('Ошибка при обновлении роли');
-      throw error;
+      message.error((error as Error)?.message || 'Ошибка при обновлении роли');
     }
   };
 
@@ -92,8 +78,7 @@ export const useRoles = () => {
       message.success('Роль удалена');
       await fetchRoles(pagination.current, pagination.pageSize, currentSearch);
     } catch (error) {
-      message.error('Ошибка при удалении роли');
-      throw error;
+      message.error((error as Error)?.message || 'Ошибка при удалении роли');
     }
   };
 

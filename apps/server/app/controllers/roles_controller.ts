@@ -4,6 +4,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { RoleService } from '#services/role_service'
 import { inject } from '@adonisjs/core'
 import { createRoleValidator, updateRoleValidator } from '#validators/role_validator'
+import { ConstraintException } from '#exceptions/business_exceptions'
 
 /**
  * @tag Roles
@@ -89,6 +90,12 @@ export default class RolesController extends ResourceController<typeof Role> {
    */
   async store({ request, response }: HttpContext) {
     const data = await this.validateStoreData(request)
+    const existRole = await this.roleService.getRoleByName(data.name)
+
+    if (existRole) {
+      throw new ConstraintException('Роль с таким названием уже существует')
+    }
+
     const role = await this.roleService.createRole(data)
 
     return response.created(role)

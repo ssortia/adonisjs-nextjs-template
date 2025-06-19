@@ -4,9 +4,6 @@ import { BusinessException } from '#exceptions/business_exceptions'
  * User blocked exception
  */
 export class UserBlockedException extends BusinessException {
-  static status = 403
-  static code = 'E_USER_BLOCKED'
-
   constructor(options?: ErrorOptions) {
     super('Ваш аккаунт заблокирован. Обратитесь к администратору', options)
   }
@@ -19,9 +16,6 @@ export class UserBlockedException extends BusinessException {
  * Email not verified exception
  */
 export class EmailNotVerifiedException extends BusinessException {
-  static status = 403
-  static code = 'E_EMAIL_NOT_VERIFIED'
-
   constructor(options?: ErrorOptions) {
     super('Пожалуйста, подтвердите ваш email адрес перед входом в систему', options)
   }
@@ -34,9 +28,6 @@ export class EmailNotVerifiedException extends BusinessException {
  * Email already exists exception
  */
 export class EmailExistsException extends BusinessException {
-  static status = 409
-  static code = 'E_EMAIL_EXISTS'
-
   constructor(options?: ErrorOptions) {
     super('Пользователь с таким email уже существует', options)
   }
@@ -49,9 +40,6 @@ export class EmailExistsException extends BusinessException {
  * User not found exception
  */
 export class UserNotFoundException extends BusinessException {
-  static status = 404
-  static code = 'E_USER_NOT_FOUND'
-
   constructor(options?: ErrorOptions) {
     super('Пользователь не найден', options)
   }
@@ -61,12 +49,21 @@ export class UserNotFoundException extends BusinessException {
 }
 
 /**
+ * Invalid credentials exception
+ */
+export class InvalidCredentialsException extends BusinessException {
+  constructor(options?: ErrorOptions) {
+    super('Неверные учетные данные', options)
+  }
+
+  readonly code = 'E_INVALID_CREDENTIALS'
+  readonly status = 400
+}
+
+/**
  * OAuth authentication exception
  */
 export class OAuthException extends BusinessException {
-  static status = 400
-  static code = 'E_OAUTH_ERROR'
-
   constructor(message: string = 'Ошибка OAuth аутентификации', options?: ErrorOptions) {
     super(message, options)
   }
@@ -79,9 +76,6 @@ export class OAuthException extends BusinessException {
  * User has no role exception
  */
 export class UserNoRoleException extends BusinessException {
-  static status = 403
-  static code = 'E_USER_NO_ROLE'
-
   constructor(options?: ErrorOptions) {
     super('У пользователя отсутствует роль', options)
   }

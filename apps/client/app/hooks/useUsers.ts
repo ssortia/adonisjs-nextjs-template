@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { message } from 'antd';
+import { App } from 'antd';
 import api from '../services/api';
 import type { User, UserFormData } from '../types';
 
@@ -14,6 +14,7 @@ interface UsersResponse {
 }
 
 export const useUsers = () => {
+  const { message } = App.useApp();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentSearch, setCurrentSearch] = useState('');
@@ -57,8 +58,7 @@ export const useUsers = () => {
         });
       }
     } catch (error) {
-      message.error('Ошибка при загрузке пользователей');
-      console.error('Error fetching users:', error);
+      message.error((error as Error)?.message || 'Ошибка при загрузке пользователей');
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ export const useUsers = () => {
       message.success('Пользователь создан');
       await fetchUsers(pagination.current, pagination.pageSize, currentSearch);
     } catch (error) {
-      message.error('Ошибка при создании пользователя');
+      message.error((error as Error)?.message || 'Ошибка при создании пользователя');
       throw error;
     }
   };
@@ -81,7 +81,7 @@ export const useUsers = () => {
       message.success('Пользователь обновлен');
       await fetchUsers(pagination.current, pagination.pageSize, currentSearch);
     } catch (error) {
-      message.error('Ошибка при обновлении пользователя');
+      message.error((error as Error)?.message || 'Ошибка при обновлении пользователя');
       throw error;
     }
   };
@@ -92,7 +92,7 @@ export const useUsers = () => {
       message.success('Пользователь удален');
       await fetchUsers(pagination.current, pagination.pageSize, currentSearch);
     } catch (error) {
-      message.error('Ошибка при удалении пользователя');
+      message.error((error as Error)?.message || 'Ошибка при удалении пользователя');
       throw error;
     }
   };

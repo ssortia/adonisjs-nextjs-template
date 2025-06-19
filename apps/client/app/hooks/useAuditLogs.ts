@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '@/app/services/api';
+import { App } from 'antd';
 
 export interface AuditLog {
   id: number;
@@ -62,6 +63,7 @@ export interface AuditLogsResponse {
 }
 
 export const useAuditLogs = () => {
+  const { message } = App.useApp();
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,21 +80,18 @@ export const useAuditLogs = () => {
       
       const params = new URLSearchParams();
       
-      // Добавляем фильтры
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
           params.append(key, String(value));
         }
       });
       
-      // Добавляем сортировку
       Object.entries(sort).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
           params.append(key, String(value));
         }
       });
       
-      // Добавляем пагинацию
       Object.entries(pagination).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
           params.append(key, String(value));
@@ -104,42 +103,41 @@ export const useAuditLogs = () => {
       setAuditLogs(response.data);
       setMeta(response.meta);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch audit logs');
-      console.error('Failed to fetch audit logs:', err);
+      const errorMessage = (err as Error)?.message || 'Ошибка получения логов';
+      setError(errorMessage);
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [message]);
 
   const fetchAuditLogById = useCallback(async (id: number): Promise<AuditLog | null> => {
     try {
-      const response = await api.get(`/api/admin/audit-logs/${id}`) as AuditLog;
-      return response;
+      return await api.get(`/api/admin/audit-logs/${id}`) as AuditLog;
     } catch (err: any) {
-      console.error('Failed to fetch audit log:', err);
+      message.error((err as Error)?.message || 'Ошибка получения логов');
       return null;
     }
-  }, []);
+  }, [message]);
 
   const fetchStats = useCallback(async (period: 'day' | 'week' | 'month' = 'day'): Promise<AuditLogStats | null> => {
     try {
-      const response = await api.get(`/api/admin/audit-logs/stats?period=${period}`) as AuditLogStats;
-      return response;
+      return await api.get(`/api/admin/audit-logs/stats?period=${period}`) as AuditLogStats;
     } catch (err: any) {
-      console.error('Failed to fetch audit logs stats:', err);
+      message.error((err as Error)?.message || 'Ошибка получения статистики логов');
       return null;
     }
-  }, []);
+  }, [message]);
 
   const fetchAvailableActions = useCallback(async (): Promise<string[]> => {
     try {
       const response = await api.get('/api/admin/audit-logs/actions') as { actions: string[] };
       return response.actions;
     } catch (err: any) {
-      console.error('Failed to fetch available actions:', err);
+      message.error((err as Error)?.message || 'Failed to fetch available actions');
       return [];
     }
-  }, []);
+  }, [message]);
 
   return {
     auditLogs,
