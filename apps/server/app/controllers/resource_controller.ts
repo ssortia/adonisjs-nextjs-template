@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { BaseModel } from '@adonisjs/lucid/orm'
+import { ConstraintException } from '#exceptions/business_exceptions'
 
 export default abstract class ResourceController<Model extends typeof BaseModel> {
   protected abstract model: Model
@@ -35,6 +36,13 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
    */
   async store({ request, response }: HttpContext) {
     const data = await this.validateStoreData(request)
+
+    const existRecord = await this.model.findBy('name', data.name)
+
+    if (existRecord) {
+      throw new ConstraintException('Запись с таким названием уже существует')
+    }
+
     const record = await this.model.create(data)
 
     return response.created(record)
@@ -55,8 +63,18 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
    * PUT/PATCH /resource/:id
    */
   async update({ params, request, response }: HttpContext) {
-    const record = await this.findRecord(params.id)
     const data = await this.validateUpdateData(request)
+
+    const record = await this.findRecord(params.id)
+
+    // @ts-ignore
+    if (data.name !== record.name) {
+      const existRecord = await this.model.findBy('name', data.name)
+
+      if (existRecord) {
+        throw new ConstraintException('Запись с таким названием уже существует')
+      }
+    }
 
     record.merge(data)
     await record.save()

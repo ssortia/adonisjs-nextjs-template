@@ -31,3 +31,26 @@
    - email подтвержден автоматически
 
 **Результат:** Сид создан и готов к использованию
+
+## 2025-06-20
+
+### Запрос: Исправление тестов permissions
+**Описание:** Пользователь показал, что auth тесты исправлены, и попросил заняться исправлением тестов permissions.
+
+**Выполненные работы:**
+1. Проанализирован код auth.spec.ts из последнего коммита для понимания правильного подхода
+2. Обнаружены проблемы в permissions.spec.ts:
+   - Неправильное создание токенов (`currentAccessToken.create` вместо `createAuthToken`)
+   - Неправильные названия разрешений (`manage_permissions` вместо `permissions.view`, `permissions.create`, etc.)
+   - Неправильные API пути (отсутствие `/api/` префикса)
+3. Исправлены все проблемы:
+   - Заменил создание токенов на `createAuthToken(user)` 
+   - Исправил API пути (добавил `/api/` префикс)
+   - Заменил `manage_permissions` на правильные названия:
+     - `permissions.view` для index/show тестов
+     - `permissions.create` для store тестов  
+     - `permissions.edit` для update тестов
+     - `permissions.delete` для destroy тестов
+   - Закомментировал `rollbackGlobalTransaction` в teardown
+
+**Результат:** Тесты permissions исправлены в соответствии с архитектурой resource middleware

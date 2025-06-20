@@ -1,10 +1,9 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import User from '#models/user'
 import Role from '#models/role'
-import hash from '@adonisjs/core/services/hash'
 
 export default class AdminUserSeeder extends BaseSeeder {
-  static environment = ['development', 'test']
+  static environment = ['development']
 
   async run() {
     const adminRole = await Role.findBy('name', 'admin')

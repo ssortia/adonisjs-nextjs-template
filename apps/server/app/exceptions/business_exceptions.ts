@@ -54,5 +54,5 @@ export class ConstraintException extends BusinessException {
   }
 
   readonly code = 'E_INVALID_TOKEN'
-  readonly status = 400
+  readonly status = 422
 }

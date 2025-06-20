@@ -10,7 +10,7 @@ test.group('Auth', (group) => {
   })
 
   group.each.teardown(async () => {
-    // await db.rollbackGlobalTransaction()
+    await db.rollbackGlobalTransaction()
   })
 
   test('should register a new user successfully', async ({ client, assert }) => {
