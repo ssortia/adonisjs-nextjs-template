@@ -37,11 +37,7 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
   async store({ request, response }: HttpContext) {
     const data = await this.validateStoreData(request)
 
-    const existRecord = await this.model.findBy('name', data.name)
-
-    if (existRecord) {
-      throw new ConstraintException('Запись с таким названием уже существует')
-    }
+    await this.validateUniqueFieldForCreate(data)
 
     const record = await this.model.create(data)
 
@@ -64,18 +60,9 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
    */
   async update({ params, request, response }: HttpContext) {
     const data = await this.validateUpdateData(request)
-
     const record = await this.findRecord(params.id)
 
-    // @ts-ignore
-    if (data.name !== record.name) {
-      const existRecord = await this.model.findBy('name', data.name)
-
-      if (existRecord) {
-        throw new ConstraintException('Запись с таким названием уже существует')
-      }
-    }
-
+    await this.validateUniqueFieldForUpdate({ id: params.id, ...data })
     record.merge(data)
     await record.save()
 
@@ -146,5 +133,31 @@ export default abstract class ResourceController<Model extends typeof BaseModel>
    */
   protected async validateUpdateData(request: any) {
     return request.all()
+  }
+
+  /**
+   * Проверка уникальности при создании записи
+   */
+  protected async validateUniqueFieldForCreate(data: any) {
+    const existingRecord = await this.model.findBy('name', data.name)
+
+    if (existingRecord) {
+      throw new ConstraintException('Запись с таким названием уже существует')
+    }
+  }
+
+  /**
+   * Проверка уникальности при обновлении записи
+   */
+  protected async validateUniqueFieldForUpdate(updateData: any) {
+    const duplicateRecord = await this.model
+      .query()
+      .where('name', updateData.name)
+      .where('id', '<>', updateData.id)
+      .first()
+
+    if (duplicateRecord) {
+      throw new ConstraintException('Запись с таким названием уже существует')
+    }
   }
 }

@@ -5,7 +5,7 @@ import PermissionFactory from './permission_factory.js'
 const RoleFactory = factory
   .define(Role, async ({ faker }) => {
     return {
-      name: faker.helpers.arrayElement(['admin', 'user', 'moderator']),
+      name: faker.word.adjective({ length: 1 }),
       description: faker.lorem.sentence(),
     }
   })

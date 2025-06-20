@@ -17,12 +17,10 @@ test.group('Permissions CRUD', (group) => {
     client,
     assert,
   }) => {
-    // Get existing permissions.view permission from seeder
     const viewPermission = await Permission.findByOrFail('name', 'permissions.view')
     const testRole = await RoleFactory.merge({ name: 'test' }).create()
     await testRole.related('permissions').attach([viewPermission.id])
 
-    // Create test user
     const testUser = await UserFactory.merge({ roleId: testRole.id }).create()
     const token = await createAuthToken(testUser)
 
@@ -34,7 +32,6 @@ test.group('Permissions CRUD', (group) => {
   })
 
   test('should fail to get permissions without permissions.view permission', async ({ client }) => {
-    // Create user without permissions.view permission
     const role = await RoleFactory.merge({ name: 'user_test' }).create()
     const user = await UserFactory.merge({ roleId: role.id }).create()
     const token = await createAuthToken(user)
@@ -48,12 +45,10 @@ test.group('Permissions CRUD', (group) => {
     client,
     assert,
   }) => {
-    // Get existing permissions.create permission from seeder
     const createPermission = await Permission.findByOrFail('name', 'permissions.create')
     const testRole = await RoleFactory.merge({ name: 'test' }).create()
     await testRole.related('permissions').attach([createPermission.id])
 
-    // Create test user
     const testUser = await UserFactory.merge({ roleId: testRole.id }).create()
     const token = await createAuthToken(testUser)
 
@@ -73,16 +68,13 @@ test.group('Permissions CRUD', (group) => {
   })
 
   test('should fail to create permission with duplicate name', async ({ client }) => {
-    // Get existing permissions.create permission from seeder
     const createPermission = await Permission.findByOrFail('name', 'permissions.create')
     const testRole = await RoleFactory.merge({ name: 'test' }).create()
     await testRole.related('permissions').attach([createPermission.id])
 
-    // Create test user
     const testUser = await UserFactory.merge({ roleId: testRole.id }).create()
     const token = await createAuthToken(testUser)
 
-    // Use existing permission name from seeder
     const existingPermission = await Permission.findByOrFail('name', 'users.view')
 
     const permissionData = {
@@ -102,16 +94,13 @@ test.group('Permissions CRUD', (group) => {
     client,
     assert,
   }) => {
-    // Get existing permissions.edit permission from seeder
     const editPermission = await Permission.findByOrFail('name', 'permissions.edit')
     const testRole = await RoleFactory.merge({ name: 'test' }).create()
     await testRole.related('permissions').attach([editPermission.id])
 
-    // Create test user
     const testUser = await UserFactory.merge({ roleId: testRole.id }).create()
     const token = await createAuthToken(testUser)
 
-    // Get target permission to update
     const targetPermission = await Permission.findByOrFail('name', 'users.view')
 
     const updateData = {
@@ -132,16 +121,13 @@ test.group('Permissions CRUD', (group) => {
   test('should delete permission when authenticated with permissions.delete permission', async ({
     client,
   }) => {
-    // Get existing permissions.delete permission from seeder
     const deletePermission = await Permission.findByOrFail('name', 'permissions.delete')
     const testRole = await RoleFactory.merge({ name: 'test' }).create()
     await testRole.related('permissions').attach([deletePermission.id])
 
-    // Create test user
     const testUser = await UserFactory.merge({ roleId: testRole.id }).create()
     const token = await createAuthToken(testUser)
 
-    // Get target permission to delete
     const targetPermission = await Permission.findByOrFail('name', 'users.create')
 
     const response = await client
@@ -155,16 +141,13 @@ test.group('Permissions CRUD', (group) => {
     client,
     assert,
   }) => {
-    // Get existing permissions.view permission from seeder
     const viewPermission = await Permission.findByOrFail('name', 'permissions.view')
     const testRole = await RoleFactory.merge({ name: 'test' }).create()
     await testRole.related('permissions').attach([viewPermission.id])
 
-    // Create test user
     const testUser = await UserFactory.merge({ roleId: testRole.id }).create()
     const token = await createAuthToken(testUser)
 
-    // Get target permission to view
     const targetPermission = await Permission.findByOrFail('name', 'users.edit')
 
     const response = await client
@@ -177,12 +160,10 @@ test.group('Permissions CRUD', (group) => {
   })
 
   test('should return 404 for non-existent permission', async ({ client }) => {
-    // Get existing permissions.view permission from seeder
     const viewPermission = await Permission.findByOrFail('name', 'permissions.view')
     const testRole = await RoleFactory.merge({ name: 'test' }).create()
     await testRole.related('permissions').attach([viewPermission.id])
 
-    // Create test user
     const testUser = await UserFactory.merge({ roleId: testRole.id }).create()
     const token = await createAuthToken(testUser)
 

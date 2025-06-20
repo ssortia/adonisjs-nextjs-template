@@ -2,6 +2,7 @@ import ResourceController from '#controllers/resource_controller'
 import User from '#models/user'
 import { createUserValidator, updateUserValidator } from '#validators/user_validator'
 import { inject } from '@adonisjs/core'
+import { ConstraintException } from '#exceptions/business_exceptions'
 
 /**
  * @tag Users
@@ -103,5 +104,31 @@ export default class UsersController extends ResourceController<typeof User> {
 
   protected async validateUpdateData(request: any) {
     return request.validateUsing(updateUserValidator)
+  }
+
+  /**
+   * Проверка уникальности при создании записи
+   */
+  protected async validateUniqueFieldForCreate(data: any) {
+    const existingRecord = await this.model.findBy('email', data.email)
+
+    if (existingRecord) {
+      throw new ConstraintException('Пользователь с таким email уже существует')
+    }
+  }
+
+  /**
+   * Проверка уникальности при обновлении записи
+   */
+  protected async validateUniqueFieldForUpdate(updateData: any) {
+    const duplicateRecord = await this.model
+      .query()
+      .where('email', updateData.email)
+      .whereNot('id', updateData.id)
+      .first()
+
+    if (duplicateRecord) {
+      throw new ConstraintException('Пользователь с таким email уже существует')
+    }
   }
 }

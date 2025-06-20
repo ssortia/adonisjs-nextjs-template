@@ -60,7 +60,7 @@ export class LocalAuthProvider implements AuthProvider {
       emailVerificationToken,
     })
 
-    // await this.emailService.send(new VerificationEmailNotification(user, emailVerificationToken))
+    await this.emailService.send(new VerificationEmailNotification(user, emailVerificationToken))
 
     await user.load('role')
     return user

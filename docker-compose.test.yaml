@@ -30,6 +30,7 @@ services:
       - /app/apps/server/node_modules
     working_dir: /app/apps/server
     command: sh -c "npm install && node ace migration:fresh --force && node ace db:seed && npm run test"
+    restart: "no"
     environment:
       - NODE_ENV=test
       - PORT=3334

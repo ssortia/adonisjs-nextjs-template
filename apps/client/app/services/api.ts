@@ -1,6 +1,6 @@
 'use client';
 
-const API_URL = 'http://localhost:3333';
+const API_URL = 'http://localhost:3333/api';
 
 interface Role {
   id: number;
@@ -88,26 +88,26 @@ interface UserPermissions {
 
 export const authApi = {
   register: (data: RegisterData): Promise<AuthResponse> =>
-    fetchApi<AuthResponse>('/api/auth/register', {
+    fetchApi<AuthResponse>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   login: (data: LoginData): Promise<AuthResponse> =>
-    fetchApi<AuthResponse>('/api/auth/login', {
+    fetchApi<AuthResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   logout: (): Promise<void> =>
-    fetchApi<void>('/api/auth/logout', {
+    fetchApi<void>('/auth/logout', {
       method: 'POST',
     }),
 
-  getCurrentUser: (): Promise<{ user: User }> => fetchApi<{ user: User }>('/api/auth/me'),
+  getCurrentUser: (): Promise<{ user: User }> => fetchApi<{ user: User }>('/auth/me'),
 
   getUserPermissions: (): Promise<UserPermissions> =>
-    fetchApi<UserPermissions>('/api/auth/permissions'),
+    fetchApi<UserPermissions>('/auth/permissions'),
 };
 
 export const authUtils = {

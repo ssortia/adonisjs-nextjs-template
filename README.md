@@ -120,6 +120,11 @@ node ace db:seed
 npm run dev
 ```
 
+### 5. Запуск тестов
+```bash
+docker compose -f docker-compose.yaml -f docker-compose.test.yaml up --exit-code-from server_test
+```
+
 ## 📚 Available Scripts
 
 ### Root Level
