@@ -3,7 +3,7 @@ import Role from '#models/role'
 import Permission from '#models/permission'
 
 export default class InitialRolesSeeder extends BaseSeeder {
-  static environment = ['development', 'production']
+  static environment = ['development', 'production', 'test']
 
   async run() {
     // Создание разрешений

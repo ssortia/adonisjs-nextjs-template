@@ -34,11 +34,18 @@ router
   })
   .prefix('/api/auth')
 
-router.resource('users', '#controllers/users_controller').use('*', middleware.resource())
+/**
+ * API маршруты для ресурсов
+ */
 router
-  .resource('permissions', '#controllers/permissions_controller')
-  .use('*', middleware.resource())
-router.resource('roles', '#controllers/roles_controller').use('*', middleware.resource())
+  .group(() => {
+    router.resource('users', '#controllers/users_controller').use('*', middleware.resource())
+    router
+      .resource('permissions', '#controllers/permissions_controller')
+      .use('*', middleware.resource())
+    router.resource('roles', '#controllers/roles_controller').use('*', middleware.resource())
+  })
+  .prefix('/api')
 
 /**
  * Admin routes (admin only)

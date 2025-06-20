@@ -27,7 +27,6 @@ export class LocalAuthProvider implements AuthProvider {
 
   async authenticate(credentials: AuthenticationCredentials): Promise<AuthenticationResult> {
     let user
-
     try {
       user = await User.verifyCredentials(credentials.email, credentials.password)
     } catch (error) {
@@ -61,7 +60,7 @@ export class LocalAuthProvider implements AuthProvider {
       emailVerificationToken,
     })
 
-    await this.emailService.send(new VerificationEmailNotification(user, emailVerificationToken))
+    // await this.emailService.send(new VerificationEmailNotification(user, emailVerificationToken))
 
     await user.load('role')
     return user

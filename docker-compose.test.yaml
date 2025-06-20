@@ -12,8 +12,6 @@ services:
       - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
     ports:
       - "5441:5432"
-    volumes:
-      - postgres_test_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U adonis_test -d adonis_test" ]
       interval: 5s
@@ -31,7 +29,7 @@ services:
       - ./apps/server:/app/apps/server
       - /app/apps/server/node_modules
     working_dir: /app/apps/server
-    command: sh -c "npm install && node ace migration:run --force && node ace db:seed && npm run test"
+    command: sh -c "npm install && node ace migration:fresh --force && node ace db:seed && npm run test"
     environment:
       - NODE_ENV=test
       - PORT=3334
@@ -59,6 +57,3 @@ services:
 networks:
   test-network:
     driver: bridge
-
-volumes:
-  postgres_test_data:

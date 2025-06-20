@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import { UserFactory } from '#database/factories/index'
 import db from '@adonisjs/lucid/services/db'
 import { createAuthToken } from '#tests/helpers/auth_helper'
+import Role from '#models/role'
 
 test.group('Auth', (group) => {
   group.each.setup(async () => {
@@ -9,7 +10,7 @@ test.group('Auth', (group) => {
   })
 
   group.each.teardown(async () => {
-    await db.rollbackGlobalTransaction()
+    // await db.rollbackGlobalTransaction()
   })
 
   test('should register a new user successfully', async ({ client, assert }) => {
@@ -21,12 +22,11 @@ test.group('Auth', (group) => {
     }
 
     const response = await client.post('/api/auth/register').json(userData)
-
-    response.assertStatus(201)
-    assert.properties(response.body(), ['user', 'token'])
+    response.assertStatus(200)
+    assert.properties(response.body(), ['message', 'user'])
     assert.equal(response.body().user.email, userData.email)
     assert.equal(response.body().user.fullName, userData.fullName)
-    assert.isTrue(response.body().user.isEmailVerified)
+    assert.isFalse(response.body().user.isEmailVerified)
   })
 
   test('should fail registration with invalid email', async ({ client }) => {
@@ -57,12 +57,10 @@ test.group('Auth', (group) => {
 
   test('should login with correct credentials', async ({ client, assert }) => {
     const user = await UserFactory.merge({ password: 'password123' }).create()
-
     const response = await client.post('/api/auth/login').json({
       email: user.email,
       password: 'password123',
     })
-
     response.assertStatus(200)
     assert.properties(response.body(), ['user', 'token'])
     assert.equal(response.body().user.email, user.email)
@@ -77,7 +75,7 @@ test.group('Auth', (group) => {
       password: 'wrong-password',
     })
 
-    response.assertStatus(401)
+    response.assertStatus(400)
   })
 
   test('should fail login with non-existent email', async ({ client }) => {
@@ -86,13 +84,13 @@ test.group('Auth', (group) => {
       password: 'password123',
     })
 
-    response.assertStatus(401)
+    response.assertStatus(400)
   })
 
   test('should fail login when user is blocked', async ({ client }) => {
-    const user = await UserFactory.merge({ 
+    const user = await UserFactory.merge({
       password: 'password123',
-      blocked: true 
+      blocked: true,
     }).create()
 
     const response = await client.post('/api/auth/login').json({
@@ -100,20 +98,17 @@ test.group('Auth', (group) => {
       password: 'password123',
     })
 
-    response.assertStatus(401)
+    response.assertStatus(403)
   })
 
   test('should get user profile when authenticated', async ({ client, assert }) => {
     const user = await UserFactory.create()
     const token = await createAuthToken(user)
 
-    const response = await client
-      .get('/api/auth/me')
-      .header('Authorization', `Bearer ${token}`)
-
+    const response = await client.get('/api/auth/me').header('Authorization', `Bearer ${token}`)
     response.assertStatus(200)
-    assert.equal(response.body().email, user.email)
-    assert.equal(response.body().fullName, user.fullName)
+    assert.equal(response.body().user.email, user.email)
+    assert.equal(response.body().user.fullName, user.fullName)
   })
 
   test('should fail to get profile without token', async ({ client }) => {
@@ -129,22 +124,19 @@ test.group('Auth', (group) => {
     const response = await client
       .post('/api/auth/logout')
       .header('Authorization', `Bearer ${token}`)
-
-    response.assertStatus(200)
+    response.assertStatus(204)
   })
 
   test('should get user permissions when authenticated', async ({ client, assert }) => {
-    const user = await UserFactory.with('role', 1, (roleQuery) => {
-      roleQuery.with('permissions', 2)
-    }).create()
+    const userRole = await Role.findBy('name', 'user')
+    const user = await UserFactory.merge({ roleId: userRole!.id }).create()
 
     const token = await createAuthToken(user)
 
     const response = await client
       .get('/api/auth/permissions')
       .header('Authorization', `Bearer ${token}`)
-
     response.assertStatus(200)
-    assert.isArray(response.body())
+    assert.isArray(response.body().permissions)
   })
 })

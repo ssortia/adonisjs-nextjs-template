@@ -11,21 +11,24 @@ test.group('Users CRUD', (group) => {
     await db.rollbackGlobalTransaction()
   })
 
-  test('should get users list when authenticated with read permission', async ({ client, assert }) => {
-    // Create admin role with read permission
+  test('should get users list when authenticated with read permission', async ({
+    client,
+    assert,
+  }) => {
+    // Create testuser role with read permission
     const readPermission = await PermissionFactory.merge({ name: 'read_user' }).create()
-    const adminRole = await RoleFactory.merge({ name: 'admin' }).create()
-    await adminRole.related('permissions').attach([readPermission.id])
-    
-    // Create admin user
-    const adminUser = await UserFactory.merge({ roleId: adminRole.id }).create()
-    const token = await adminUser.currentAccessToken.create(adminUser)
+    const testuserRole = await RoleFactory.merge({ name: 'testuser' }).create()
+    await testuserRole.related('permissions').attach([readPermission.id])
+
+    // Create testuser user
+    const testuserUser = await UserFactory.merge({ roleId: testuserRole.id }).create()
+    const token = await testuserUser.currentAccessToken.create(testuserUser)
 
     // Create some test users
     await UserFactory.createMany(3)
 
     const response = await client
-      .get('/users')
+      .get('/api/users')
       .header('Authorization', `Bearer ${token.value!.release()}`)
 
     response.assertStatus(200)
@@ -34,33 +37,36 @@ test.group('Users CRUD', (group) => {
   })
 
   test('should fail to get users without authentication', async ({ client }) => {
-    const response = await client.get('/users')
+    const response = await client.get('/api/users')
 
     response.assertStatus(401)
   })
 
   test('should fail to get users without read permission', async ({ client }) => {
     // Create user without read permission
-    const role = await RoleFactory.merge({ name: 'user' }).create()
+    const role = await RoleFactory.merge({ name: 'testuser' }).create()
     const user = await UserFactory.merge({ roleId: role.id }).create()
     const token = await user.currentAccessToken.create(user)
 
     const response = await client
-      .get('/users')
+      .get('/api/users')
       .header('Authorization', `Bearer ${token.value!.release()}`)
 
     response.assertStatus(403)
   })
 
-  test('should get specific user when authenticated with read permission', async ({ client, assert }) => {
-    // Create admin role with read permission
+  test('should get specific user when authenticated with read permission', async ({
+    client,
+    assert,
+  }) => {
+    // Create testuser role with read permission
     const readPermission = await PermissionFactory.merge({ name: 'read_user' }).create()
-    const adminRole = await RoleFactory.merge({ name: 'admin' }).create()
-    await adminRole.related('permissions').attach([readPermission.id])
-    
-    // Create admin user
-    const adminUser = await UserFactory.merge({ roleId: adminRole.id }).create()
-    const token = await adminUser.currentAccessToken.create(adminUser)
+    const testuserRole = await RoleFactory.merge({ name: 'testuser' }).create()
+    await testuserRole.related('permissions').attach([readPermission.id])
+
+    // Create testuser user
+    const testuserUser = await UserFactory.merge({ roleId: testuserRole.id }).create()
+    const token = await testuserUser.currentAccessToken.create(testuserUser)
 
     // Create target user
     const targetUser = await UserFactory.create()
@@ -74,15 +80,18 @@ test.group('Users CRUD', (group) => {
     assert.equal(response.body().email, targetUser.email)
   })
 
-  test('should create user when authenticated with create permission', async ({ client, assert }) => {
-    // Create admin role with create permission
+  test('should create user when authenticated with create permission', async ({
+    client,
+    assert,
+  }) => {
+    // Create testuser role with create permission
     const createPermission = await PermissionFactory.merge({ name: 'create_user' }).create()
-    const adminRole = await RoleFactory.merge({ name: 'admin' }).create()
-    await adminRole.related('permissions').attach([createPermission.id])
-    
-    // Create admin user
-    const adminUser = await UserFactory.merge({ roleId: adminRole.id }).create()
-    const token = await adminUser.currentAccessToken.create(adminUser)
+    const testuserRole = await RoleFactory.merge({ name: 'testuser' }).create()
+    await testuserRole.related('permissions').attach([createPermission.id])
+
+    // Create testuser user
+    const testuserUser = await UserFactory.merge({ roleId: testuserRole.id }).create()
+    const token = await testuserUser.currentAccessToken.create(testuserUser)
 
     const userData = {
       fullName: 'New User',
@@ -92,7 +101,7 @@ test.group('Users CRUD', (group) => {
     }
 
     const response = await client
-      .post('/users')
+      .post('/api/users')
       .header('Authorization', `Bearer ${token.value!.release()}`)
       .json(userData)
 
@@ -103,7 +112,7 @@ test.group('Users CRUD', (group) => {
 
   test('should fail to create user without create permission', async ({ client }) => {
     // Create user without create permission
-    const role = await RoleFactory.merge({ name: 'user' }).create()
+    const role = await RoleFactory.merge({ name: 'testuser' }).create()
     const user = await UserFactory.merge({ roleId: role.id }).create()
     const token = await user.currentAccessToken.create(user)
 
@@ -115,7 +124,7 @@ test.group('Users CRUD', (group) => {
     }
 
     const response = await client
-      .post('/users')
+      .post('/api/users')
       .header('Authorization', `Bearer ${token.value!.release()}`)
       .json(userData)
 
@@ -123,14 +132,14 @@ test.group('Users CRUD', (group) => {
   })
 
   test('should fail to create user with duplicate email', async ({ client }) => {
-    // Create admin role with create permission
+    // Create testuser role with create permission
     const createPermission = await PermissionFactory.merge({ name: 'create_user' }).create()
-    const adminRole = await RoleFactory.merge({ name: 'admin' }).create()
-    await adminRole.related('permissions').attach([createPermission.id])
-    
-    // Create admin user
-    const adminUser = await UserFactory.merge({ roleId: adminRole.id }).create()
-    const token = await adminUser.currentAccessToken.create(adminUser)
+    const testuserRole = await RoleFactory.merge({ name: 'testuser' }).create()
+    await testuserRole.related('permissions').attach([createPermission.id])
+
+    // Create testuser user
+    const testuserUser = await UserFactory.merge({ roleId: testuserRole.id }).create()
+    const token = await testuserUser.currentAccessToken.create(testuserUser)
 
     // Create existing user
     const existingUser = await UserFactory.create()
@@ -143,22 +152,25 @@ test.group('Users CRUD', (group) => {
     }
 
     const response = await client
-      .post('/users')
+      .post('/api/users')
       .header('Authorization', `Bearer ${token.value!.release()}`)
       .json(userData)
 
     response.assertStatus(422)
   })
 
-  test('should update user when authenticated with update permission', async ({ client, assert }) => {
-    // Create admin role with update permission
+  test('should update user when authenticated with update permission', async ({
+    client,
+    assert,
+  }) => {
+    // Create testuser role with update permission
     const updatePermission = await PermissionFactory.merge({ name: 'update_user' }).create()
-    const adminRole = await RoleFactory.merge({ name: 'admin' }).create()
-    await adminRole.related('permissions').attach([updatePermission.id])
-    
-    // Create admin user
-    const adminUser = await UserFactory.merge({ roleId: adminRole.id }).create()
-    const token = await adminUser.currentAccessToken.create(adminUser)
+    const testuserRole = await RoleFactory.merge({ name: 'testuser' }).create()
+    await testuserRole.related('permissions').attach([updatePermission.id])
+
+    // Create testuser user
+    const testuserUser = await UserFactory.merge({ roleId: testuserRole.id }).create()
+    const token = await testuserUser.currentAccessToken.create(testuserUser)
 
     // Create target user
     const targetUser = await UserFactory.create()
@@ -179,14 +191,14 @@ test.group('Users CRUD', (group) => {
   })
 
   test('should delete user when authenticated with delete permission', async ({ client }) => {
-    // Create admin role with delete permission
+    // Create testuser role with delete permission
     const deletePermission = await PermissionFactory.merge({ name: 'delete_user' }).create()
-    const adminRole = await RoleFactory.merge({ name: 'admin' }).create()
-    await adminRole.related('permissions').attach([deletePermission.id])
-    
-    // Create admin user
-    const adminUser = await UserFactory.merge({ roleId: adminRole.id }).create()
-    const token = await adminUser.currentAccessToken.create(adminUser)
+    const testuserRole = await RoleFactory.merge({ name: 'testuser' }).create()
+    await testuserRole.related('permissions').attach([deletePermission.id])
+
+    // Create testuser user
+    const testuserUser = await UserFactory.merge({ roleId: testuserRole.id }).create()
+    const token = await testuserUser.currentAccessToken.create(testuserUser)
 
     // Create target user
     const targetUser = await UserFactory.create()
@@ -200,7 +212,7 @@ test.group('Users CRUD', (group) => {
 
   test('should fail to delete user without delete permission', async ({ client }) => {
     // Create user without delete permission
-    const role = await RoleFactory.merge({ name: 'user' }).create()
+    const role = await RoleFactory.merge({ name: 'testuser' }).create()
     const user = await UserFactory.merge({ roleId: role.id }).create()
     const token = await user.currentAccessToken.create(user)
 
@@ -215,14 +227,14 @@ test.group('Users CRUD', (group) => {
   })
 
   test('should return 404 for non-existent user', async ({ client }) => {
-    // Create admin role with read permission
+    // Create testuser role with read permission
     const readPermission = await PermissionFactory.merge({ name: 'read_user' }).create()
-    const adminRole = await RoleFactory.merge({ name: 'admin' }).create()
-    await adminRole.related('permissions').attach([readPermission.id])
-    
-    // Create admin user
-    const adminUser = await UserFactory.merge({ roleId: adminRole.id }).create()
-    const token = await adminUser.currentAccessToken.create(adminUser)
+    const testuserRole = await RoleFactory.merge({ name: 'testuser' }).create()
+    await testuserRole.related('permissions').attach([readPermission.id])
+
+    // Create testuser user
+    const testuserUser = await UserFactory.merge({ roleId: testuserRole.id }).create()
+    const token = await testuserUser.currentAccessToken.create(testuserUser)
 
     const response = await client
       .get('/users/99999')
